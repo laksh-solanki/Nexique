@@ -242,8 +242,7 @@ header.scrolled {
   background-image: linear-gradient(to bottom, rgba(254, 253, 251, 0.2), var(--bg-light)), url('/assets/home_bg_img.jpg');
   background-size: cover;
   background-position: center;
-  filter: blur(0.4px);
-  opacity: 0.25;
+  opacity: 0.20;
   z-index: -1;
   pointer-events: none;
 }
@@ -262,30 +261,6 @@ header.scrolled {
   opacity: 0;
   transform: translateY(20px);
   animation: fade-in-up 0.8s forwards 0.2s;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #f7f4ec;
-  border: 1px solid rgba(197, 160, 89, 0.3);
-  padding: 6px 16px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: var(--primary);
-  margin-bottom: 24px;
-  text-transform: uppercase;
-}
-
-.hero-badge-dot {
-  width: 6px;
-  height: 6px;
-  background-color: var(--primary);
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
 }
 
 .hero h1 {
