@@ -29,27 +29,20 @@ function initMobileMenu() {
   
   if (menuBtn && navLinks) {
     menuBtn.addEventListener('click', () => {
-      const isVisible = navLinks.style.display === 'flex';
-      navLinks.style.display = isVisible ? 'none' : 'flex';
-      if (!isVisible) {
-        navLinks.style.flexDirection = 'column';
-        navLinks.style.position = 'absolute';
-        navLinks.style.top = 'var(--header-height)';
-        navLinks.style.left = '0';
-        navLinks.style.width = '100%';
-        navLinks.style.background = 'rgba(254, 253, 251, 0.98)';
-        navLinks.style.backdropFilter = 'blur(10px)';
-        navLinks.style.padding = '20px';
-        navLinks.style.borderBottom = '1px solid var(--border-light)';
-        navLinks.style.boxShadow = '0 10px 30px rgba(197, 160, 89, 0.08)';
-      }
+      const isActive = navLinks.classList.toggle('active');
+      menuBtn.classList.toggle('active');
+      menuBtn.setAttribute('aria-expanded', isActive);
+      menuBtn.innerHTML = isActive ? '&#10005;' : '&#9776;';
     });
 
     // Close menu when link is clicked (on mobile)
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
-          navLinks.style.display = 'none';
+          navLinks.classList.remove('active');
+          menuBtn.classList.remove('active');
+          menuBtn.setAttribute('aria-expanded', false);
+          menuBtn.innerHTML = '&#9776;';
         }
       });
     });
@@ -57,7 +50,10 @@ function initMobileMenu() {
     // Reset layout on window resize
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768) {
-        navLinks.removeAttribute('style');
+        navLinks.classList.remove('active');
+        menuBtn.classList.remove('active');
+        menuBtn.setAttribute('aria-expanded', false);
+        menuBtn.innerHTML = '&#9776;';
       }
     });
   }
