@@ -1,0 +1,286 @@
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+@source "../src";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-burgundy: var(--burgundy);
+  --color-cream: var(--cream);
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: "Karla", "Inter", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+  /* Navy Trust palette — professional, editorial */
+  --background: oklch(0.985 0.005 240);
+  --foreground: oklch(0.18 0.04 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.04 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.04 260);
+  --primary: oklch(0.22 0.07 260); /* deep navy #0f1b3d */
+  --primary-foreground: oklch(0.97 0.01 240);
+  --secondary: oklch(0.96 0.01 240);
+  --secondary-foreground: oklch(0.22 0.07 260);
+  --muted: oklch(0.95 0.008 240);
+  --muted-foreground: oklch(0.45 0.03 260);
+  --accent: oklch(0.55 0.11 250); /* steel blue #3b6fa0 */
+  --accent-foreground: oklch(0.98 0.005 240);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.9 0.012 240);
+  --input: oklch(0.92 0.012 240);
+  --ring: oklch(0.55 0.11 250);
+
+  --gold: oklch(0.55 0.11 250); /* repurposed: steel blue */
+  --gold-bright: oklch(0.65 0.13 245);
+  --burgundy: oklch(0.22 0.07 260); /* repurposed: deep navy */
+  --cream: oklch(0.97 0.008 240); /* repurposed: ice white */
+  --navy-deep: oklch(0.18 0.07 260);
+  --navy-mid: oklch(0.32 0.08 258);
+  --ice: oklch(0.97 0.008 240);
+  --gradient-hero: linear-gradient(135deg, oklch(0.18 0.07 260) 0%, oklch(0.28 0.08 258) 100%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.55 0.11 250), oklch(0.7 0.13 245));
+  --shadow-card: 0 25px 60px -25px oklch(0.18 0.07 260 / 0.25);
+  --shadow-gold: 0 20px 50px -20px oklch(0.55 0.11 250 / 0.45);
+}
+
+@keyframes float-card {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--rot, 0deg));
+  }
+  50% {
+    transform: translateY(-18px) rotate(calc(var(--rot, 0deg) + 1.5deg));
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes flip-in {
+  from {
+    opacity: 0;
+    transform: perspective(1000px) rotateY(-30deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0);
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.94);
+  }
+  70% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes burst {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes shake-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.78 0.13 75 / 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 14px oklch(0.78 0.13 75 / 0);
+  }
+}
+
+.animate-float {
+  animation: float-card 6s ease-in-out infinite;
+}
+.animate-fade-up {
+  animation: fade-up 0.8s ease-out both;
+}
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+.animate-flip-in {
+  animation: flip-in 0.8s ease-out both;
+}
+
+/* Click / tap reactions — combine with active: variant */
+.click-pop:active {
+  animation: pop 0.35s ease-out;
+}
+.click-wiggle:active {
+  animation: wiggle 0.35s ease-in-out;
+}
+.click-shake:active {
+  animation: shake-x 0.4s ease-in-out;
+}
+.click-glow:focus-visible,
+.click-glow:active {
+  animation: glow-pulse 0.6s ease-out;
+}
+
+/* Ripple — wrap an element with .ripple, it pulses a circle on click */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple::after {
+  content: "";
+  position: absolute;
+  inset: 50% 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: oklch(0.78 0.13 75 / 0.35);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.ripple:active::after {
+  animation: burst 0.55s ease-out;
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.72 0.13 70) 0%,
+    oklch(0.92 0.16 88) 50%,
+    oklch(0.72 0.13 70) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.bg-hero-gradient {
+  background: var(--gradient-hero);
+}
+.bg-gold-gradient {
+  background: var(--gradient-gold);
+}
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-gold {
+  box-shadow: var(--shadow-gold);
+}
+.font-display {
+  font-family: var(--font-display);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "kern";
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.005em;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+}
