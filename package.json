@@ -3,11 +3,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "vercel:dev": "npx --yes vercel@54.9.1 dev",
+    "vercel:link": "npx --yes vercel@54.9.1 link",
+    "vercel:pull": "npx --yes vercel@54.9.1 pull",
+    "vercel:build": "npx --yes vercel@54.9.1 build",
+    "vercel:preview": "npx --yes vercel@54.9.1 deploy --yes",
+    "vercel:prod": "npx --yes vercel@54.9.1 deploy --yes --prod",
+    "vercel:env:list": "npx --yes vercel@54.9.1 env ls",
+    "vercel:open": "npx --yes vercel@54.9.1 open",
+    "deploy:preview": "npm run lint && npm run build && npx --yes vercel@54.9.1 deploy --yes",
+    "deploy:prod": "npm run lint && npm run build && npx --yes vercel@54.9.1 deploy --yes --prod"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",
