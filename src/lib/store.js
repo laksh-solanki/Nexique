@@ -12,12 +12,19 @@ import {
 
 import { db, isFirebaseConfigured } from "@/lib/firebase";
 
-const ORDERS_KEY = "cardfest.orders";
-const MODELS_KEY = "cardfest.customModels";
+const ORDERS_KEY = "nexique.orders";
+const MODELS_KEY = "nexique.customModels";
+const LEGACY_ORDERS_KEY = "cardfest.orders";
+const LEGACY_MODELS_KEY = "cardfest.customModels";
 
-function readLocal(key) {
+function readLocal(key, legacyKey) {
   try {
-    return JSON.parse(localStorage.getItem(key) || "[]");
+    const storedValue = localStorage.getItem(key) || localStorage.getItem(legacyKey);
+    if (!storedValue) return [];
+
+    const value = JSON.parse(storedValue);
+    localStorage.setItem(key, JSON.stringify(value));
+    return value;
   } catch {
     return [];
   }
@@ -41,7 +48,7 @@ export async function createOrder(payload) {
   };
 
   if (!isFirebaseConfigured || !db) {
-    const orders = readLocal(ORDERS_KEY);
+    const orders = readLocal(ORDERS_KEY, LEGACY_ORDERS_KEY);
     orders.unshift({ ...order, id: crypto.randomUUID() });
     writeLocal(ORDERS_KEY, orders);
     return;
@@ -55,7 +62,7 @@ export async function createOrder(payload) {
 }
 
 export async function listOrders() {
-  if (!isFirebaseConfigured || !db) return readLocal(ORDERS_KEY);
+  if (!isFirebaseConfigured || !db) return readLocal(ORDERS_KEY, LEGACY_ORDERS_KEY);
 
   const snapshot = await getDocs(query(collection(db, "orders"), orderBy("created_at", "desc")));
   return snapshot.docs.map((entry) => {
@@ -70,7 +77,7 @@ export async function listOrders() {
 
 export async function updateOrderStatus(id, status) {
   if (!isFirebaseConfigured || !db) {
-    const orders = readLocal(ORDERS_KEY).map((order) =>
+    const orders = readLocal(ORDERS_KEY, LEGACY_ORDERS_KEY).map((order) =>
       order.id === id ? { ...order, status } : order,
     );
     writeLocal(ORDERS_KEY, orders);
@@ -84,7 +91,7 @@ export async function deleteOrder(id) {
   if (!isFirebaseConfigured || !db) {
     writeLocal(
       ORDERS_KEY,
-      readLocal(ORDERS_KEY).filter((order) => order.id !== id),
+      readLocal(ORDERS_KEY, LEGACY_ORDERS_KEY).filter((order) => order.id !== id),
     );
     return;
   }
@@ -99,7 +106,7 @@ export async function createCustomModel(payload) {
   };
 
   if (!isFirebaseConfigured || !db) {
-    const items = readLocal(MODELS_KEY);
+    const items = readLocal(MODELS_KEY, LEGACY_MODELS_KEY);
     items.unshift({ ...item, id: crypto.randomUUID() });
     writeLocal(MODELS_KEY, items);
     return;
@@ -112,7 +119,7 @@ export async function createCustomModel(payload) {
 }
 
 export async function listCustomModels() {
-  if (!isFirebaseConfigured || !db) return readLocal(MODELS_KEY);
+  if (!isFirebaseConfigured || !db) return readLocal(MODELS_KEY, LEGACY_MODELS_KEY);
 
   const snapshot = await getDocs(
     query(collection(db, "custom_card_models"), orderBy("created_at", "desc")),
@@ -131,7 +138,7 @@ export async function deleteCustomModel(id) {
   if (!isFirebaseConfigured || !db) {
     writeLocal(
       MODELS_KEY,
-      readLocal(MODELS_KEY).filter((model) => model.id !== id),
+      readLocal(MODELS_KEY, LEGACY_MODELS_KEY).filter((model) => model.id !== id),
     );
     return;
   }

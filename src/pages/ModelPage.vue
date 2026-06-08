@@ -1,27 +1,33 @@
 <template>
   <div v-if="collection && model" class="min-h-screen bg-background">
     <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-      <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <RouterLink to="/" class="inline-flex items-center gap-2">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <RouterLink to="/" class="inline-flex min-w-0 items-center gap-2">
           <BrandLockup compact />
         </RouterLink>
         <RouterLink
           :to="`/collections/${collection.slug}`"
-          class="inline-flex items-center gap-2 text-sm transition hover:text-accent"
+          class="inline-flex max-w-[46vw] shrink-0 items-center justify-end gap-2 truncate text-sm transition hover:text-accent sm:max-w-none"
         >
-          <ArrowLeft class="h-4 w-4" /> Back to {{ collection.name }}
+          <ArrowLeft class="h-4 w-4 shrink-0" />
+          <span class="truncate">Back to {{ collection.name }}</span>
         </RouterLink>
       </nav>
     </header>
 
-    <section class="relative overflow-hidden bg-gradient-to-br px-6 py-20" :class="model.tint">
+    <section
+      class="relative overflow-hidden bg-gradient-to-br px-4 py-16 sm:px-6 sm:py-20"
+      :class="model.tint"
+    >
       <div class="animate-fade-up relative mx-auto max-w-5xl text-center">
         <span
           class="rounded-full bg-card/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-burgundy/70"
         >
           {{ collection.name }} &middot; {{ model.tag }}
         </span>
-        <h1 class="font-display mt-4 text-4xl font-bold tracking-tight text-burgundy md:text-6xl">
+        <h1
+          class="font-display mt-4 text-3xl font-bold tracking-tight text-burgundy sm:text-4xl md:text-6xl"
+        >
           {{ model.name }}
         </h1>
         <p class="mx-auto mt-4 max-w-xl text-burgundy/80">
@@ -30,7 +36,7 @@
       </div>
     </section>
 
-    <section v-if="isBirthdayBloom" class="bg-secondary px-6 py-16">
+    <section v-if="isBirthdayBloom" class="bg-secondary px-4 py-14 sm:px-6 sm:py-16">
       <div class="mx-auto mb-10 max-w-5xl text-center">
         <p class="text-sm font-medium uppercase tracking-widest text-accent">Featured Design</p>
         <h2 class="font-display mt-2 text-3xl font-bold md:text-4xl">Signature Birthday Bloom</h2>
@@ -52,7 +58,7 @@
       </div>
     </section>
 
-    <section class="mx-auto max-w-7xl px-6 py-16">
+    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
       <div class="mb-12 text-center">
         <p class="text-xs font-medium uppercase tracking-widest text-accent">Design Variants</p>
         <h2 class="font-display mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -129,6 +135,6 @@ const isBirthdayBloom = computed(
 
 watchEffect(() => {
   if (!collection.value || !model.value) return;
-  document.title = `${model.value.name} - ${collection.value.name} - CardFesta`;
+  document.title = `${model.value.name} - ${collection.value.name} - Nexique`;
 });
 </script>

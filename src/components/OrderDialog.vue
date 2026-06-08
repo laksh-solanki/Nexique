@@ -13,7 +13,7 @@
         @click="open = false"
       />
       <div
-        class="relative max-h-[calc(100vh-3rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-card"
+        class="relative max-h-[calc(100vh-3rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6"
         role="dialog"
         aria-modal="true"
       >
@@ -188,7 +188,7 @@ async function submit() {
     form.message = "";
   } catch (err) {
     console.error(err);
-    toast.error("Could not submit. Please email cardfest@gmail.com instead.");
+    toast.error("Could not submit. Please email nexique@gmail.com instead.");
   } finally {
     submitting.value = false;
   }

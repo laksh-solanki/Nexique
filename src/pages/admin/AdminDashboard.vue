@@ -3,7 +3,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Admin desk</p>
-        <h1 class="font-display mt-2 text-3xl font-bold tracking-tight">Today at CardFesta</h1>
+        <h1 class="font-display mt-2 text-3xl font-bold tracking-tight">Today at Nexique</h1>
         <p class="mt-1 text-sm text-muted-foreground">
           Track new requests, recent catalog additions, and the work that needs confirmation before
           print.

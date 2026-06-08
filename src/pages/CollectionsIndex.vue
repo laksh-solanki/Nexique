@@ -2,9 +2,11 @@
   <div class="min-h-screen bg-background">
     <SiteHeader />
 
-    <section class="bg-hero-gradient relative overflow-hidden px-6 py-20 text-primary-foreground">
+    <section
+      class="bg-hero-gradient relative overflow-hidden px-4 py-16 text-primary-foreground sm:px-6 sm:py-20"
+    >
       <div
-        class="animate-float pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-3xl"
+        class="animate-float pointer-events-none absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-3xl sm:h-[600px] sm:w-[600px]"
       />
       <div class="animate-fade-up relative mx-auto max-w-4xl text-center">
         <div
@@ -12,7 +14,9 @@
         >
           <Sparkles class="h-3.5 w-3.5" /> Choose Your Card
         </div>
-        <h1 class="font-display text-5xl font-bold leading-tight tracking-tight md:text-6xl">
+        <h1
+          class="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl"
+        >
           The full <span class="text-shimmer italic">collection</span>.
         </h1>
         <p class="mx-auto mt-5 max-w-xl text-primary-foreground/80">
@@ -21,7 +25,7 @@
       </div>
     </section>
 
-    <section class="mx-auto max-w-7xl px-6 py-20">
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <RouterLink
           v-for="(collection, index) in list"

@@ -7,11 +7,18 @@ import {
 
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
 
-const LOCAL_USER_KEY = "cardfest.localUser";
+const LOCAL_USER_KEY = "nexique.localUser";
+const LEGACY_LOCAL_USER_KEY = "cardfest.localUser";
 
 function localUser() {
   try {
-    return JSON.parse(localStorage.getItem(LOCAL_USER_KEY) || "null");
+    const storedUser =
+      localStorage.getItem(LOCAL_USER_KEY) || localStorage.getItem(LEGACY_LOCAL_USER_KEY);
+    if (!storedUser) return null;
+
+    const user = JSON.parse(storedUser);
+    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
+    return user;
   } catch {
     return null;
   }
@@ -77,6 +84,7 @@ export async function createAdmin(email, password) {
 export async function signOutAdmin() {
   if (!isFirebaseConfigured || !auth) {
     localStorage.removeItem(LOCAL_USER_KEY);
+    localStorage.removeItem(LEGACY_LOCAL_USER_KEY);
     return;
   }
 

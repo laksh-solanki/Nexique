@@ -2,11 +2,13 @@
   <div class="min-h-screen overflow-x-hidden bg-background">
     <SiteHeader floating />
 
-    <section class="relative bg-background px-6 pb-16 pt-28">
+    <section class="relative bg-background px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
       <div class="mx-auto max-w-7xl">
-        <div class="mb-12 flex items-end justify-between border-b border-foreground/15 pb-5">
+        <div
+          class="mb-8 flex items-end justify-between border-b border-foreground/15 pb-5 sm:mb-12"
+        >
           <div
-            class="flex items-center gap-4 text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground"
+            class="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground sm:gap-4 sm:text-[11px] sm:tracking-[0.25em]"
           >
             <span>Vol. I</span>
             <span class="h-1 w-1 rounded-full bg-foreground/30" />
@@ -15,7 +17,7 @@
           <div
             class="hidden items-center gap-2 text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground md:flex"
           >
-            <Sparkles class="h-3 w-3" /> The CardFesta Quarterly
+            <Sparkles class="h-3 w-3" /> The Nexique Quarterly
           </div>
         </div>
 
@@ -25,12 +27,14 @@
               &mdash; The Cover Story
             </p>
             <h1
-              class="font-display text-5xl font-medium leading-[1.02] tracking-tight text-primary md:text-7xl lg:text-[5.5rem]"
+              class="font-display text-4xl font-medium leading-[1.05] tracking-tight text-primary sm:text-5xl md:text-7xl lg:text-[5.5rem]"
             >
               The quiet art of a <em class="font-normal italic text-accent">well-made</em> card.
             </h1>
-            <p class="mt-7 max-w-xl text-lg font-light leading-relaxed text-muted-foreground">
-              CardFesta is a small professional studio designing cards with the rigour of a print
+            <p
+              class="mt-6 max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg"
+            >
+              Nexique is a small professional studio designing cards with the rigour of a print
               magazine - sharp type, exact colour, and paper that holds the moment.
             </p>
             <div class="mt-8 flex flex-wrap gap-3">
@@ -52,11 +56,11 @@
             <figure class="relative mt-12">
               <img
                 :src="hero"
-                alt="CardFesta editorial selection"
-                class="h-[460px] w-full rounded-sm object-cover shadow-card"
+                alt="Nexique editorial selection"
+                class="h-72 w-full rounded-sm object-cover shadow-card sm:h-[460px]"
               />
               <figcaption
-                class="mt-3 flex items-center justify-between border-t border-foreground/10 pt-3 text-xs text-muted-foreground"
+                class="mt-3 flex flex-col gap-1 border-t border-foreground/10 pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
               >
                 <span class="uppercase tracking-widest"
                   >Plate 01 &mdash; Studio selection, spring edition</span
@@ -132,7 +136,7 @@
       </div>
     </div>
 
-    <section id="collections" class="mx-auto max-w-7xl px-6 py-24">
+    <section id="collections" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
       <div
         class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6"
       >
@@ -188,23 +192,31 @@
       </div>
     </section>
 
-    <section id="about" class="bg-primary px-6 py-24 text-primary-foreground">
+    <section id="about" class="bg-primary px-4 py-16 text-primary-foreground sm:px-6 sm:py-24">
       <div class="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-12">
         <div class="md:col-span-7">
           <p class="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-accent">
             &mdash; The Studio
           </p>
-          <h2 class="font-display text-4xl font-medium leading-[1.05] tracking-tight md:text-6xl">
+          <h2
+            class="font-display text-3xl font-medium leading-[1.08] tracking-tight sm:text-4xl md:text-6xl"
+          >
             A studio that treats every card like an <em class="italic text-accent">edition</em>.
           </h2>
-          <p class="mt-7 max-w-xl text-lg font-light leading-relaxed text-primary-foreground/75">
-            CardFesta works the way a small magazine works - a brief, a draft, a press check, a
-            final. The result is a card that earns its place in a drawer, a frame, or a pocket.
+          <p
+            class="mt-6 max-w-xl text-base font-light leading-relaxed text-primary-foreground/75 sm:mt-7 sm:text-lg"
+          >
+            Nexique works the way a small magazine works - a brief, a draft, a press check, a final.
+            The result is a card that earns its place in a drawer, a frame, or a pocket.
           </p>
-          <div class="mt-10 grid grid-cols-3 gap-8 border-t border-primary-foreground/15 pt-8">
+          <div
+            class="mt-8 grid grid-cols-1 gap-5 border-t border-primary-foreground/15 pt-8 min-[420px]:grid-cols-3 sm:mt-10 sm:gap-8"
+          >
             <div v-for="stat in stats" :key="stat.label">
-              <div class="font-display text-4xl text-accent">{{ stat.number }}</div>
-              <div class="mt-2 text-[10px] uppercase tracking-[0.25em] text-primary-foreground/60">
+              <div class="font-display text-3xl text-accent sm:text-4xl">{{ stat.number }}</div>
+              <div
+                class="mt-2 text-[10px] uppercase tracking-[0.18em] text-primary-foreground/60 sm:tracking-[0.25em]"
+              >
                 {{ stat.label }}
               </div>
             </div>
@@ -233,7 +245,7 @@
       </div>
     </section>
 
-    <section id="ordering" class="bg-background px-6 py-24">
+    <section id="ordering" class="bg-background px-4 py-16 sm:px-6 sm:py-24">
       <div class="mx-auto max-w-7xl">
         <div
           class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6"
@@ -243,7 +255,7 @@
               &mdash; Order Desk
             </p>
             <h2
-              class="font-display mt-3 text-4xl font-medium tracking-tight text-primary md:text-5xl"
+              class="font-display mt-3 text-3xl font-medium tracking-tight text-primary sm:text-4xl md:text-5xl"
             >
               Everything needed before we print.
             </h2>
@@ -306,7 +318,7 @@
       </div>
     </section>
 
-    <section id="faq" class="bg-secondary px-6 py-24">
+    <section id="faq" class="bg-secondary px-4 py-16 sm:px-6 sm:py-24">
       <div class="mx-auto max-w-7xl">
         <div
           class="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6"
@@ -316,7 +328,7 @@
               &mdash; Studio Notes
             </p>
             <h2
-              class="font-display mt-3 text-4xl font-medium tracking-tight text-primary md:text-5xl"
+              class="font-display mt-3 text-3xl font-medium tracking-tight text-primary sm:text-4xl md:text-5xl"
             >
               Questions customers usually ask.
             </h2>
@@ -340,7 +352,7 @@
       </div>
     </section>
 
-    <section id="contact" class="px-6 py-24">
+    <section id="contact" class="px-4 py-16 sm:px-6 sm:py-24">
       <div class="mx-auto max-w-7xl">
         <div
           class="mb-12 flex flex-wrap items-end justify-between gap-3 border-b border-foreground/15 pb-6"
@@ -350,7 +362,7 @@
               &mdash; Correspondence
             </p>
             <h2
-              class="font-display mt-3 text-4xl font-medium tracking-tight text-primary md:text-5xl"
+              class="font-display mt-3 text-3xl font-medium tracking-tight text-primary sm:text-4xl md:text-5xl"
             >
               The studio is open.
             </h2>
@@ -384,7 +396,7 @@
             <p class="mt-2 text-sm italic text-muted-foreground">Co-founder &middot; Production</p>
           </div>
           <a
-            href="mailto:cardfest@gmail.com"
+            href="mailto:nexique@gmail.com"
             class="group block bg-primary p-8 text-primary-foreground transition hover:bg-accent"
           >
             <div class="mb-5 flex items-center gap-3">
@@ -395,27 +407,27 @@
                 Email the studio
               </p>
             </div>
-            <h3 class="font-display text-2xl">cardfest@gmail.com</h3>
+            <h3 class="font-display text-2xl">nexique@gmail.com</h3>
             <p class="mt-2 inline-flex items-center gap-1 text-sm text-primary-foreground/70">
               Send a message <ArrowUpRight class="h-3 w-3" />
             </p>
           </a>
         </div>
 
-        <div class="mt-6 flex items-center gap-3 text-sm text-muted-foreground">
+        <div class="mt-6 flex items-start gap-3 text-sm text-muted-foreground sm:items-center">
           <ShieldCheck class="h-4 w-4 text-accent" />
           <p>Replies within 24 hours &middot; Custom quotes always free</p>
         </div>
       </div>
     </section>
 
-    <footer class="border-t border-foreground/15 bg-background px-6 py-10">
+    <footer class="border-t border-foreground/15 bg-background px-4 py-10 sm:px-6">
       <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 md:flex-row">
         <span class="font-display text-xl font-medium tracking-tight text-primary"
-          >CardFesta<span class="text-accent">.</span></span
+          >Nexique<span class="text-accent">.</span></span
         >
         <div
-          class="flex items-center gap-6 text-xs uppercase tracking-widest text-muted-foreground"
+          class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs uppercase tracking-widest text-muted-foreground"
         >
           <RouterLink to="/vision" class="transition hover:text-accent">Vision</RouterLink>
           <RouterLink to="/collections" class="transition hover:text-accent"
@@ -426,7 +438,7 @@
             ><MapPin class="h-3 w-3" /> By appointment</span
           >
         </div>
-        <p class="text-xs text-muted-foreground">&copy; {{ currentYear }} CardFesta Studio</p>
+        <p class="text-xs text-muted-foreground">&copy; {{ currentYear }} Nexique Studio</p>
       </div>
     </footer>
   </div>

@@ -27,7 +27,7 @@
         </p>
         <div class="mt-2 h-1 w-8 bg-accent" />
         <p class="mt-1.5 text-[8px] uppercase tracking-wider text-muted-foreground">
-          CardFesta &middot; 2026
+          Nexique &middot; 2026
         </p>
       </div>
     </div>
@@ -86,7 +86,7 @@
         {{ title }}
       </p>
       <div class="mt-2 h-px w-8 bg-accent" />
-      <p class="mt-1 text-[7px] uppercase tracking-[0.2em] text-accent/80">CardFesta</p>
+      <p class="mt-1 text-[7px] uppercase tracking-[0.2em] text-accent/80">Nexique</p>
     </div>
   </div>
 </template>

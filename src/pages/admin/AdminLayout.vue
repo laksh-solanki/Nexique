@@ -1,11 +1,15 @@
 <template>
   <div class="min-h-screen bg-secondary/40">
     <header class="border-b border-border bg-card">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <RouterLink to="/" class="inline-flex items-center">
+      <div
+        class="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between"
+      >
+        <RouterLink to="/" class="inline-flex min-w-0 items-center">
           <BrandLockup compact label="Admin" />
         </RouterLink>
-        <nav class="flex flex-wrap items-center justify-end gap-4 text-sm">
+        <nav
+          class="flex w-full flex-wrap items-center gap-x-4 gap-y-3 text-sm md:w-auto md:justify-end"
+        >
           <RouterLink
             to="/admin/dashboard"
             class="inline-flex items-center gap-1.5 transition hover:text-accent"
@@ -38,7 +42,7 @@
       </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-6 py-8">
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <p
         v-if="!isFirebaseConfigured"
         class="mb-6 rounded-xl border border-accent/25 bg-card p-3 text-xs text-muted-foreground"

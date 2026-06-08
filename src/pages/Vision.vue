@@ -2,7 +2,9 @@
   <div class="min-h-screen bg-background">
     <SiteHeader />
 
-    <section class="bg-hero-gradient relative overflow-hidden px-6 py-24 text-primary-foreground">
+    <section
+      class="bg-hero-gradient relative overflow-hidden px-4 py-16 text-primary-foreground sm:px-6 sm:py-24"
+    >
       <div class="pointer-events-none absolute inset-0 opacity-25">
         <div
           class="animate-float absolute left-1/4 top-0 h-96 w-96 rounded-full bg-accent/30 blur-3xl"
@@ -18,17 +20,21 @@
         >
           <Sparkles class="h-3.5 w-3.5" /> Our Vision
         </div>
-        <h1 class="font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+        <h1
+          class="font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-7xl"
+        >
           Designed with <span class="text-shimmer italic">purpose</span>.
         </h1>
-        <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-primary-foreground/80">
-          CardFesta is a professional card studio dedicated to precision, polish, and the small
+        <p
+          class="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-primary-foreground/80 sm:text-lg"
+        >
+          Nexique is a professional card studio dedicated to precision, polish, and the small
           details that turn a card into a keepsake.
         </p>
       </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-24">
+    <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
       <div class="grid gap-6 md:grid-cols-3">
         <div
           v-for="(pillar, index) in pillars"
@@ -52,19 +58,19 @@
       </div>
     </section>
 
-    <section class="bg-secondary px-6 py-20">
+    <section class="bg-secondary px-4 py-16 sm:px-6 sm:py-20">
       <div class="animate-fade-up mx-auto max-w-4xl text-center">
         <p class="text-xs font-medium uppercase tracking-widest text-accent">Our Story</p>
-        <h2 class="font-display mt-3 text-4xl font-bold tracking-tight md:text-5xl">
+        <h2 class="font-display mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
           A studio built on detail.
         </h2>
-        <p class="mt-6 text-lg leading-relaxed text-muted-foreground">
-          CardFesta started with a simple idea: cards should feel as considered as the moments they
+        <p class="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
+          Nexique started with a simple idea: cards should feel as considered as the moments they
           mark. From wedding invitations to business introductions, from greeting cards to playing
           decks - we approach every project with a designer's eye and a printer's discipline.
           Premium stock, sharp typography, exact colour, and a process you can rely on.
         </p>
-        <div class="mx-auto mt-10 grid max-w-xl grid-cols-3 gap-6">
+        <div class="mx-auto mt-10 grid max-w-xl grid-cols-1 gap-6 min-[420px]:grid-cols-3">
           <div v-for="stat in stats" :key="stat.label" class="animate-fade-up">
             <component :is="stat.icon" class="mx-auto mb-2 h-5 w-5 text-accent" />
             <div class="font-display text-3xl font-bold text-primary">{{ stat.number }}</div>
@@ -76,7 +82,7 @@
       </div>
     </section>
 
-    <section class="px-6 py-20">
+    <section class="px-4 py-16 sm:px-6 sm:py-20">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="font-display text-3xl font-bold tracking-tight md:text-4xl">
           Ready to design with us?
@@ -92,7 +98,7 @@
             Browse Collections <ArrowRight class="h-4 w-4 transition group-hover:translate-x-1" />
           </RouterLink>
           <a
-            href="mailto:cardfest@gmail.com"
+            href="mailto:nexique@gmail.com"
             class="rounded-full border border-border px-7 py-3.5 font-medium transition hover:bg-secondary"
           >
             Email the studio

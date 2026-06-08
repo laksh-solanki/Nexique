@@ -8,9 +8,9 @@ const routes = [
     name: "home",
     component: () => import("@/pages/Home.vue"),
     meta: {
-      title: "CardFesta - A Professional Card Studio",
+      title: "Nexique - A Professional Card Studio",
       description:
-        "CardFesta is a professional studio designing greeting, wedding, business, playing, valentine and collection cards with editorial precision.",
+        "Nexique is a professional studio designing greeting, wedding, business, playing, valentine and collection cards with editorial precision.",
     },
   },
   {
@@ -18,8 +18,8 @@ const routes = [
     name: "collections",
     component: () => import("@/pages/CollectionsIndex.vue"),
     meta: {
-      title: "Choose a Card - CardFesta",
-      description: "Browse every CardFesta collection.",
+      title: "Choose a Card - Nexique",
+      description: "Browse every Nexique collection.",
     },
   },
   {
@@ -37,8 +37,8 @@ const routes = [
     name: "vision",
     component: () => import("@/pages/Vision.vue"),
     meta: {
-      title: "Our Vision - CardFesta",
-      description: "The vision, mission and values that drive CardFesta.",
+      title: "Our Vision - Nexique",
+      description: "The vision, mission and values that drive Nexique.",
     },
   },
   {
@@ -46,33 +46,33 @@ const routes = [
     name: "auth",
     component: () => import("@/pages/Auth.vue"),
     meta: {
-      title: "Admin - CardFesta",
-      description: "CardFesta admin sign in.",
+      title: "Admin - Nexique",
+      description: "Nexique admin sign in.",
     },
   },
   {
     path: "/admin",
     component: () => import("@/pages/admin/AdminLayout.vue"),
-    meta: { requiresAuth: true, title: "Admin - CardFesta" },
+    meta: { requiresAuth: true, title: "Admin - Nexique" },
     children: [
       { path: "", redirect: "/admin/dashboard" },
       {
         path: "dashboard",
         name: "admin-dashboard",
         component: () => import("@/pages/admin/AdminDashboard.vue"),
-        meta: { requiresAuth: true, title: "Dashboard - CardFesta Admin" },
+        meta: { requiresAuth: true, title: "Dashboard - Nexique Admin" },
       },
       {
         path: "orders",
         name: "admin-orders",
         component: () => import("@/pages/admin/AdminOrders.vue"),
-        meta: { requiresAuth: true, title: "Orders - CardFesta Admin" },
+        meta: { requiresAuth: true, title: "Orders - Nexique Admin" },
       },
       {
         path: "models",
         name: "admin-models",
         component: () => import("@/pages/admin/AdminModels.vue"),
-        meta: { requiresAuth: true, title: "Catalog - CardFesta Admin" },
+        meta: { requiresAuth: true, title: "Catalog - Nexique Admin" },
       },
     ],
   },
@@ -80,7 +80,7 @@ const routes = [
     path: "/:pathMatch(.*)*",
     name: "not-found",
     component: () => import("@/pages/NotFound.vue"),
-    meta: { title: "Page not found - CardFesta" },
+    meta: { title: "Page not found - Nexique" },
   },
 ];
 
@@ -100,7 +100,7 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  document.title = to.meta.title || "CardFesta";
+  document.title = to.meta.title || "Nexique";
   const metaDescription = document.querySelector('meta[name="description"]');
   if (metaDescription && to.meta.description) {
     metaDescription.setAttribute("content", to.meta.description);

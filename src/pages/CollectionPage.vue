@@ -1,20 +1,22 @@
 <template>
   <div v-if="collection" class="min-h-screen bg-background">
     <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-      <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <RouterLink to="/" class="inline-flex items-center gap-2">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <RouterLink to="/" class="inline-flex min-w-0 items-center gap-2">
           <BrandLockup compact />
         </RouterLink>
         <RouterLink
           to="/collections"
-          class="inline-flex items-center gap-2 text-sm transition hover:text-accent"
+          class="inline-flex max-w-[44vw] shrink-0 items-center justify-end gap-2 truncate text-sm transition hover:text-accent sm:max-w-none"
         >
-          <ArrowLeft class="h-4 w-4" /> All Collections
+          <ArrowLeft class="h-4 w-4 shrink-0" /> <span class="truncate">All Collections</span>
         </RouterLink>
       </nav>
     </header>
 
-    <section class="bg-hero-gradient relative overflow-hidden px-6 py-20 text-primary-foreground">
+    <section
+      class="bg-hero-gradient relative overflow-hidden px-4 py-16 text-primary-foreground sm:px-6 sm:py-20"
+    >
       <div class="absolute right-10 top-10 h-64 w-64 rounded-full bg-accent/15 blur-3xl" />
       <div class="animate-fade-up relative mx-auto max-w-5xl text-center">
         <div
@@ -22,7 +24,7 @@
         >
           <component :is="collection.icon" class="h-8 w-8 text-accent" />
         </div>
-        <h1 class="font-display text-4xl font-bold tracking-tight md:text-6xl">
+        <h1 class="font-display text-3xl font-bold tracking-tight sm:text-4xl md:text-6xl">
           {{ collection.name }}
         </h1>
         <p class="mx-auto mt-4 max-w-xl text-lg text-primary-foreground/80">
@@ -31,7 +33,7 @@
       </div>
     </section>
 
-    <section class="mx-auto max-w-7xl px-6 py-16">
+    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
       <div class="mb-12 text-center">
         <p class="text-xs font-medium uppercase tracking-widest text-accent">Models</p>
         <h2 class="font-display mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -70,7 +72,7 @@
 
       <div class="mt-16 text-center">
         <a
-          href="mailto:cardfest@gmail.com"
+          href="mailto:nexique@gmail.com"
           class="click-pop ripple bg-gold-gradient inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-semibold text-burgundy transition hover:shadow-gold"
         >
           <Mail class="h-4 w-4" /> Order from this collection
@@ -97,6 +99,6 @@ const collection = computed(() => getCollection(route.params.slug));
 
 watchEffect(() => {
   if (!collection.value) return;
-  document.title = `${collection.value.name} - CardFesta`;
+  document.title = `${collection.value.name} - Nexique`;
 });
 </script>

@@ -1,11 +1,11 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-secondary px-6">
-    <div class="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-card">
+  <div class="flex min-h-screen items-center justify-center bg-secondary px-4 py-8 sm:px-6">
+    <div class="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
       <RouterLink
         to="/"
         class="mb-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent"
       >
-        <ArrowLeft class="h-3.5 w-3.5" /> Back to CardFesta
+        <ArrowLeft class="h-3.5 w-3.5" /> Back to Nexique
       </RouterLink>
 
       <h1 class="font-display text-3xl font-bold tracking-tight">
