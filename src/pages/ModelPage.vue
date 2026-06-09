@@ -68,16 +68,24 @@
 
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div
-          v-for="(variant, index) in designVariants"
+          v-for="(variant, index) in modelDesignVariants"
           :key="variant.slug"
-          class="group animate-fade-up rounded-2xl border border-border bg-card p-5 transition-all duration-500 hover:-translate-y-1 hover:border-accent/40 hover:shadow-card"
+          class="group animate-fade-up cursor-zoom-in rounded-2xl border border-border bg-card p-5 transition-all duration-500 hover:-translate-y-1 hover:border-accent/40 hover:shadow-card focus:outline-none focus:ring-2 focus:ring-accent/30"
           :style="{ animationDelay: `${index * 0.06}s` }"
+          role="button"
+          tabindex="0"
+          :aria-label="`Open ${model.name} ${variant.name} preview`"
+          @click="openVariantPreview(variant)"
+          @keyup.enter="openVariantPreview(variant)"
+          @keyup.space.prevent="openVariantPreview(variant)"
         >
           <VariantPreview
             :variant="variant"
             :tint="model.tint"
             :icon="collection.icon"
             :title="model.name"
+            :image-src="variant.imageSrc"
+            :image-alt="variant.imageAlt"
           />
           <div class="mt-4 flex items-center justify-between">
             <h3 class="font-display text-lg font-bold tracking-tight">{{ variant.name }}</h3>
@@ -88,17 +96,27 @@
             </span>
           </div>
           <p class="mt-1 text-sm text-muted-foreground">{{ variant.blurb }}</p>
-          <OrderDialog
-            :collection-slug="collection.slug"
-            :collection-name="collection.name"
-            :model-slug="model.slug"
-            :model-name="model.name"
-            :design-variant="variant.name"
-            button-label="Order this design"
-            button-class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
-          />
+          <div @click.stop @keydown.stop @keyup.stop>
+            <OrderDialog
+              :collection-slug="collection.slug"
+              :collection-name="collection.name"
+              :model-slug="model.slug"
+              :model-name="model.name"
+              :design-variant="variant.name"
+              button-label="Order this design"
+              button-class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
+            />
+          </div>
         </div>
       </div>
+
+      <VariantPreviewDialog
+        :open="previewOpen"
+        :collection="collection"
+        :model="model"
+        :variant="selectedVariant"
+        @close="closeVariantPreview"
+      />
 
       <div class="mt-16 text-center">
         <RouterLink
@@ -111,26 +129,71 @@
     </section>
   </div>
 
+  <div v-else-if="customLoading" class="flex min-h-screen items-center justify-center bg-secondary">
+    <p class="text-sm text-muted-foreground">Loading card...</p>
+  </div>
+
   <NotFound v-else />
 </template>
 
 <script setup>
-import { computed, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { ArrowLeft } from "@lucide/vue";
 
 import BrandLockup from "@/components/BrandLockup.vue";
 import BirthdayBloomCard from "@/components/BirthdayBloomCard.vue";
 import OrderDialog from "@/components/OrderDialog.vue";
+import VariantPreviewDialog from "@/components/VariantPreviewDialog.vue";
 import VariantPreview from "@/components/VariantPreview.vue";
-import { designVariants, getCollection, getModel } from "@/lib/collections-data";
+import { getCollection, getDesignVariants, getModel } from "@/lib/collections-data";
+import { listPublicCustomModels } from "@/lib/store";
 import NotFound from "@/pages/NotFound.vue";
 
 const route = useRoute();
 const collection = computed(() => getCollection(route.params.slug));
-const model = computed(() => getModel(route.params.slug, route.params.modelSlug));
+const customModels = ref([]);
+const customLoading = ref(false);
+const staticModel = computed(() => getModel(route.params.slug, route.params.modelSlug));
+const customModel = computed(() =>
+  customModels.value.find((item) => item.slug === route.params.modelSlug),
+);
+const model = computed(() => staticModel.value || customModel.value);
+const modelDesignVariants = computed(() => getDesignVariants(route.params.slug, model.value?.name));
+const previewOpen = ref(false);
+const selectedVariant = ref(null);
 const isBirthdayBloom = computed(
   () => route.params.slug === "greeting-cards" && route.params.modelSlug === "birthday-bloom",
+);
+
+function openVariantPreview(variant) {
+  selectedVariant.value = variant;
+  previewOpen.value = true;
+}
+
+function closeVariantPreview() {
+  previewOpen.value = false;
+}
+
+watch(
+  () => route.params.slug,
+  async (slug) => {
+    if (!slug || !getCollection(slug)) {
+      customModels.value = [];
+      return;
+    }
+
+    customLoading.value = true;
+    try {
+      customModels.value = await listPublicCustomModels(slug);
+    } catch (err) {
+      console.error(err);
+      customModels.value = [];
+    } finally {
+      customLoading.value = false;
+    }
+  },
+  { immediate: true },
 );
 
 watchEffect(() => {

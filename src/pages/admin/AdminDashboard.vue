@@ -47,6 +47,42 @@
         </div>
       </section>
 
+      <section class="rounded-2xl border border-border bg-card p-5">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              System status
+            </p>
+            <h2 class="font-display mt-2 text-2xl font-bold text-primary">
+              {{ health?.mongodb === "connected" ? "MongoDB connected" : "Checking MongoDB" }}
+            </h2>
+            <p class="mt-1 text-sm text-muted-foreground">
+              {{ health?.database || "Database status will appear after the admin API responds." }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="healthLoading"
+            @click="loadHealth"
+          >
+            <Loader2 v-if="healthLoading" class="h-4 w-4 animate-spin" />
+            <RefreshCw v-else class="h-4 w-4" />
+            Check
+          </button>
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-3">
+          <div
+            v-for="item in healthCounts"
+            :key="item.label"
+            class="rounded-xl border border-border bg-secondary/50 p-3"
+          >
+            <p class="text-xs uppercase tracking-widest text-muted-foreground">{{ item.label }}</p>
+            <p class="font-display mt-1 text-2xl font-bold text-primary">{{ item.value }}</p>
+          </div>
+        </div>
+      </section>
+
       <section class="grid gap-6 lg:grid-cols-12">
         <div class="rounded-2xl border border-border bg-card p-6 lg:col-span-7">
           <div class="mb-5 flex items-center justify-between gap-3">
@@ -82,14 +118,23 @@
                   </p>
                   <p class="mt-1 text-xs text-muted-foreground">
                     Qty {{ order.quantity }} &middot; {{ formatDate(order.created_at) }}
+                    <span v-if="order.deadline">&middot; Due {{ formatDate(order.deadline) }}</span>
                   </p>
                 </div>
-                <span
-                  class="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider"
-                  :class="statusClass(order.status)"
-                >
-                  {{ statusLabel(order.status) }}
-                </span>
+                <div class="flex flex-wrap justify-end gap-2">
+                  <span
+                    class="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider"
+                    :class="priorityClass(order.priority)"
+                  >
+                    {{ priorityLabel(order.priority) }}
+                  </span>
+                  <span
+                    class="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider"
+                    :class="statusClass(order.status)"
+                  >
+                    {{ statusLabel(order.status) }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -166,6 +211,7 @@ import { computed, onMounted, ref } from "vue";
 import {
   AlertCircle,
   ArrowUpRight,
+  CalendarClock,
   CheckCircle2,
   Clock,
   FileCheck2,
@@ -174,21 +220,30 @@ import {
   Palette,
   PackageCheck,
   Plus,
+  RefreshCw,
   ShieldCheck,
-  Sparkles,
 } from "@lucide/vue";
 
 import { useToast } from "@/composables/useToast";
 import { collections } from "@/lib/collections-data";
-import { listCustomModels, listOrders } from "@/lib/store";
+import { priorityClass, priorityLabel, statusClass, statusLabel } from "@/lib/orderWorkflow";
+import { getAdminHealth, listCustomModels, listOrders } from "@/lib/store";
 
 const toast = useToast();
 const loading = ref(true);
+const healthLoading = ref(false);
 const orders = ref([]);
 const models = ref([]);
+const health = ref(null);
 
 const latestOrders = computed(() => orders.value.slice(0, 5));
 const latestModels = computed(() => models.value.slice(0, 4));
+const activeStatuses = new Set(["contacted", "proofing", "in_production"]);
+const healthCounts = computed(() => [
+  { label: "Admins", value: health.value?.counts?.admins ?? "-" },
+  { label: "Orders", value: health.value?.counts?.orders ?? orders.value.length },
+  { label: "Catalog", value: health.value?.counts?.custom_card_models ?? models.value.length },
+]);
 
 const dashboardStats = computed(() => [
   {
@@ -198,9 +253,9 @@ const dashboardStats = computed(() => [
     icon: AlertCircle,
   },
   {
-    label: "In Progress",
-    value: orders.value.filter((order) => order.status === "in_progress").length,
-    note: "Proof or print work",
+    label: "Active",
+    value: orders.value.filter((order) => activeStatuses.has(order.status)).length,
+    note: "Contacted to production",
     icon: Clock,
   },
   {
@@ -210,10 +265,10 @@ const dashboardStats = computed(() => [
     icon: PackageCheck,
   },
   {
-    label: "Catalog",
-    value: models.value.length,
-    note: "Custom card additions",
-    icon: Sparkles,
+    label: "Rush / Due",
+    value: orders.value.filter((order) => isUrgentOrder(order)).length,
+    note: "Need close follow-up",
+    icon: CalendarClock,
   },
 ]);
 
@@ -221,14 +276,14 @@ const printChecklist = [
   "Customer name, phone/email, and delivery city are confirmed.",
   "Card wording, spelling, names, date, and quantity are checked.",
   "Proof, paper stock, finish, timeline, and quote are approved.",
-  "Order status is moved from New to In progress before production.",
+  "Order status is moved through Contacted, Proofing, and In production before completion.",
 ];
 
 const adminGuides = [
   {
     icon: Inbox,
     title: "Order priority",
-    body: "Start with New orders, confirm missing details, then move approved requests to In progress.",
+    body: "Start with New and Rush orders, confirm missing details, then move approved requests through proofing and production.",
   },
   {
     icon: Palette,
@@ -238,7 +293,7 @@ const adminGuides = [
   {
     icon: FileCheck2,
     title: "Proof control",
-    body: "Do not print until the customer has approved wording, design variant, quantity, and final quote.",
+    body: "Use admin notes and deadlines to track customer approvals before printing.",
   },
 ];
 
@@ -250,11 +305,24 @@ async function load() {
     const [orderData, modelData] = await Promise.all([listOrders(), listCustomModels()]);
     orders.value = orderData;
     models.value = modelData;
+    await loadHealth();
   } catch (err) {
     console.error(err);
     toast.error(err.message || "Could not load admin dashboard.");
   } finally {
     loading.value = false;
+  }
+}
+
+async function loadHealth() {
+  healthLoading.value = true;
+  try {
+    health.value = await getAdminHealth();
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message || "Could not check MongoDB status.");
+  } finally {
+    healthLoading.value = false;
   }
 }
 
@@ -267,23 +335,16 @@ function formatDate(value) {
   return new Date(value).toLocaleString();
 }
 
-function statusLabel(status) {
-  const labels = {
-    new: "New",
-    in_progress: "In progress",
-    completed: "Completed",
-    cancelled: "Cancelled",
-  };
-  return labels[status] || status;
-}
+function isUrgentOrder(order) {
+  if (["completed", "cancelled"].includes(order.status)) return false;
+  if (order.priority === "rush") return true;
+  if (!order.deadline) return false;
 
-function statusClass(status) {
-  const classes = {
-    new: "bg-accent/10 text-accent",
-    in_progress: "bg-primary/10 text-primary",
-    completed: "bg-emerald-500/10 text-emerald-700",
-    cancelled: "bg-destructive/10 text-destructive",
-  };
-  return classes[status] || "bg-secondary text-muted-foreground";
+  const deadline = new Date(`${order.deadline}T23:59:59`);
+  if (Number.isNaN(deadline.getTime())) return false;
+
+  const soon = new Date();
+  soon.setDate(soon.getDate() + 3);
+  return deadline <= soon;
 }
 </script>

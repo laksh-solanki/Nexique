@@ -23,6 +23,42 @@ const model = (name, tag, tint) => ({
   slug: slugify(name),
 });
 
+const weddingCardAssets = import.meta.glob("../assets/weddings card/*.{png,jpg,jpeg,webp}", {
+  eager: true,
+  import: "default",
+});
+
+const normalizeAssetLabel = (value) =>
+  value
+    .toLowerCase()
+    .replace(/\blvory\b/g, "ivory")
+    .replace(/\bcards?\b/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const weddingAssetKey = (modelName, variantName) =>
+  `${normalizeAssetLabel(modelName)}|${normalizeAssetLabel(variantName)}`;
+
+const weddingCardAssetMap = Object.entries(weddingCardAssets).reduce((map, [path, src]) => {
+  const fileName =
+    path
+      .split("/")
+      .pop()
+      ?.replace(/\.[^.]+$/, "") ?? "";
+  const [modelName, variantName] = fileName.split(/\s*-\s*/);
+
+  if (modelName && variantName) {
+    map[weddingAssetKey(modelName, variantName)] = src;
+  }
+
+  return map;
+}, {});
+
+const weddingPreviewPriority = ["Classic", "Modern", "Minimal", "Vintage", "Luxe Gold", "Bold"];
+
+const getWeddingCardAsset = (modelName, variantName) =>
+  weddingCardAssetMap[weddingAssetKey(modelName, variantName)];
+
 export const collections = {
   "greeting-cards": {
     slug: "greeting-cards",
@@ -206,4 +242,32 @@ export function getCollection(slug) {
 
 export function getModel(slug, modelSlug) {
   return collections[slug]?.models.find((item) => item.slug === modelSlug);
+}
+
+export function getDesignVariants(collectionSlug, modelName) {
+  if (collectionSlug !== "wedding-cards" || !modelName) return designVariants;
+
+  return designVariants.map((variant) => {
+    const imageSrc = getWeddingCardAsset(modelName, variant.name);
+
+    return imageSrc
+      ? {
+          ...variant,
+          imageSrc,
+          imageAlt: `${modelName} ${variant.name} wedding card design`,
+        }
+      : variant;
+  });
+}
+
+export function getModelPreviewAsset(collectionSlug, modelName) {
+  if (collectionSlug !== "wedding-cards" || !modelName) return null;
+
+  const variantName = weddingPreviewPriority.find((name) => getWeddingCardAsset(modelName, name));
+  if (!variantName) return null;
+
+  return {
+    src: getWeddingCardAsset(modelName, variantName),
+    alt: `${modelName} ${variantName} wedding card design`,
+  };
 }

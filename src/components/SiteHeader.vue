@@ -99,7 +99,6 @@ const navItems = [
   { to: "/", label: "Home" },
   { to: "/collections", label: "Collections" },
   { to: "/vision", label: "Our Vision" },
-  { to: "/auth", label: "Login" },
 ];
 
 const headerClass = computed(() => {

@@ -42,9 +42,13 @@
         <p class="mt-3 text-sm text-muted-foreground">Tap any card to see all 6 design variants.</p>
       </div>
 
+      <div v-if="customLoading" class="mb-6 flex justify-center text-sm text-muted-foreground">
+        Loading studio additions...
+      </div>
+
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <RouterLink
-          v-for="(model, index) in collection.models"
+          v-for="(model, index) in modelCards"
           :key="model.slug"
           :to="`/collections/${collection.slug}/${model.slug}`"
           class="click-pop ripple group block animate-fade-up cursor-pointer rounded-2xl border border-border bg-card p-5 transition-all duration-500 hover:-translate-y-1 hover:border-accent/40 hover:shadow-card active:scale-[0.98]"
@@ -52,9 +56,19 @@
         >
           <div
             class="relative mb-4 flex h-56 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br"
-            :class="model.tint"
+            :class="model.preview ? 'from-stone-100 to-cream' : model.tint"
           >
-            <div class="h-full w-full transition-transform duration-500 group-hover:scale-[1.05]">
+            <img
+              v-if="model.preview"
+              :src="model.preview.src"
+              :alt="model.preview.alt"
+              loading="lazy"
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            />
+            <div
+              v-else
+              class="h-full w-full transition-transform duration-500 group-hover:scale-[1.05]"
+            >
               <CategoryCardArt :slug="collection.slug" />
             </div>
           </div>
@@ -85,17 +99,57 @@
 </template>
 
 <script setup>
-import { computed, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { ArrowLeft, Mail } from "@lucide/vue";
 
 import BrandLockup from "@/components/BrandLockup.vue";
 import CategoryCardArt from "@/components/CategoryCardArt.vue";
 import NotFound from "@/pages/NotFound.vue";
-import { getCollection } from "@/lib/collections-data";
+import { getCollection, getModelPreviewAsset } from "@/lib/collections-data";
+import { listPublicCustomModels } from "@/lib/store";
 
 const route = useRoute();
 const collection = computed(() => getCollection(route.params.slug));
+const customModels = ref([]);
+const customLoading = ref(false);
+const modelCards = computed(() => {
+  if (!collection.value) return [];
+
+  const staticModels = collection.value.models.map((model) => ({
+    ...model,
+    preview: getModelPreviewAsset(collection.value.slug, model.name),
+  }));
+  const addedModels = customModels.value.map((model) => ({
+    ...model,
+    preview: model.image_data_url
+      ? { src: model.image_data_url, alt: model.image_alt || `${model.name} card preview` }
+      : null,
+  }));
+
+  return [...staticModels, ...addedModels];
+});
+
+watch(
+  () => route.params.slug,
+  async (slug) => {
+    if (!slug || !getCollection(slug)) {
+      customModels.value = [];
+      return;
+    }
+
+    customLoading.value = true;
+    try {
+      customModels.value = await listPublicCustomModels(slug);
+    } catch (err) {
+      console.error(err);
+      customModels.value = [];
+    } finally {
+      customLoading.value = false;
+    }
+  },
+  { immediate: true },
+);
 
 watchEffect(() => {
   if (!collection.value) return;

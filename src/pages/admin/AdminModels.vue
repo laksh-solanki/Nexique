@@ -3,8 +3,7 @@
     <div class="mb-6">
       <h1 class="font-display text-3xl font-bold tracking-tight">Catalog &middot; Add cards</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        Add custom card models to any collection. They'll appear in Firebase for future site
-        additions.
+        Add custom card models to MongoDB. They appear on customer collection pages after saving.
       </p>
     </div>
 
@@ -65,6 +64,35 @@
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
       </div>
+      <div class="space-y-1.5 sm:col-span-2">
+        <label for="image" class="text-sm font-medium">Preview image (optional)</label>
+        <input
+          id="image"
+          ref="imageInput"
+          name="image"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          @change="setImage"
+        />
+        <p class="text-xs text-muted-foreground">
+          Use a compressed PNG, JPG, JPEG, or WEBP under 650 KB for fast loading.
+        </p>
+        <div v-if="form.image_data_url" class="mt-3 flex items-center gap-3">
+          <img
+            :src="form.image_data_url"
+            alt="Selected card preview"
+            class="h-20 w-28 rounded-md border border-border object-cover"
+          />
+          <button
+            type="button"
+            class="text-sm font-semibold text-destructive transition hover:underline"
+            @click="clearImage"
+          >
+            Remove image
+          </button>
+        </div>
+      </div>
       <div class="sm:col-span-2">
         <button
           type="submit"
@@ -94,7 +122,17 @@
         :key="item.id"
         class="rounded-2xl border border-border bg-card p-4"
       >
-        <div class="mb-3 h-24 rounded-lg bg-gradient-to-br" :class="item.tint" />
+        <div
+          class="mb-3 flex h-24 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br"
+          :class="item.image_data_url ? '' : item.tint"
+        >
+          <img
+            v-if="item.image_data_url"
+            :src="item.image_data_url"
+            :alt="item.image_alt || item.name"
+            class="h-full w-full object-cover"
+          />
+        </div>
         <div class="flex items-start justify-between gap-2">
           <div>
             <h3 class="font-display font-bold">{{ item.name }}</h3>
@@ -129,11 +167,13 @@ const collectionList = Object.values(collections);
 const items = ref([]);
 const loading = ref(true);
 const busy = ref(false);
+const imageInput = ref(null);
 const form = reactive({
   collection_slug: collectionList[0]?.slug || "",
   name: "",
   tag: "",
   tint: "",
+  image_data_url: "",
 });
 
 onMounted(load);
@@ -163,11 +203,13 @@ async function addModel() {
       name: form.name,
       tag: form.tag,
       tint: form.tint || "from-rose-200 to-amber-100",
+      image_data_url: form.image_data_url,
     });
     toast.success("Card added");
     form.name = "";
     form.tag = "";
     form.tint = "";
+    clearImage();
     await load();
   } catch (err) {
     console.error(err);
@@ -175,6 +217,33 @@ async function addModel() {
   } finally {
     busy.value = false;
   }
+}
+
+function setImage(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+    toast.error("Use PNG, JPG, JPEG, or WEBP.");
+    clearImage();
+    return;
+  }
+  if (file.size > 650 * 1024) {
+    toast.error("Image must be under 650 KB.");
+    clearImage();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    form.image_data_url = String(reader.result || "");
+  };
+  reader.onerror = () => toast.error("Could not read image.");
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  form.image_data_url = "";
+  if (imageInput.value) imageInput.value.value = "";
 }
 
 async function remove(id) {

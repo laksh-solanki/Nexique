@@ -433,7 +433,6 @@
           <RouterLink to="/collections" class="transition hover:text-accent"
             >Collections</RouterLink
           >
-          <RouterLink to="/auth" class="transition hover:text-accent">Admin</RouterLink>
           <span class="hidden items-center gap-1.5 md:inline-flex"
             ><MapPin class="h-3 w-3" /> By appointment</span
           >

@@ -8,7 +8,7 @@ export default [
   js.configs.recommended,
   ...vue.configs["flat/recommended"],
   {
-    files: ["**/*.{js,vue}"],
+    files: ["**/*.{js,mjs,vue}"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",

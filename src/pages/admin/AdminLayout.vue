@@ -31,6 +31,13 @@
           >
             <Plus class="h-4 w-4" /> Catalog
           </RouterLink>
+          <span
+            v-if="admin"
+            class="inline-flex max-w-full items-center truncate rounded-full bg-secondary px-3 py-1 text-xs text-muted-foreground"
+            :title="`${admin.name} · ${admin.email}`"
+          >
+            {{ admin.name }} · {{ admin.role }}
+          </span>
           <button
             type="button"
             class="inline-flex items-center gap-1.5 text-muted-foreground transition hover:text-destructive"
@@ -43,33 +50,32 @@
     </header>
 
     <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-      <p
-        v-if="!isFirebaseConfigured"
-        class="mb-6 rounded-xl border border-accent/25 bg-card p-3 text-xs text-muted-foreground"
-      >
-        Firebase is not configured. Admin data is being saved in local browser storage for this
-        development session.
-      </p>
       <RouterView />
     </main>
   </div>
 </template>
 
 <script setup>
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { Inbox, LayoutDashboard, LogOut, Plus } from "@lucide/vue";
 
 import { useToast } from "@/composables/useToast";
 import BrandLockup from "@/components/BrandLockup.vue";
-import { signOutAdmin } from "@/lib/auth";
-import { isFirebaseConfigured } from "@/lib/firebase";
+import { getCurrentAdminUser, signOutAdmin } from "@/lib/auth";
 
 const router = useRouter();
 const toast = useToast();
+const admin = ref(null);
+
+onMounted(async () => {
+  const user = await getCurrentAdminUser();
+  admin.value = user;
+});
 
 async function handleSignOut() {
   await signOutAdmin();
   toast.info("Signed out.");
-  router.push("/");
+  router.push({ name: "auth" });
 }
 </script>

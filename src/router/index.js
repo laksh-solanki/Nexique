@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentAdminUser } from "@/lib/auth";
 
 const routes = [
   {
@@ -42,13 +42,17 @@ const routes = [
     },
   },
   {
-    path: "/auth",
+    path: "/nexique-control",
     name: "auth",
     component: () => import("@/pages/Auth.vue"),
     meta: {
       title: "Admin - Nexique",
       description: "Nexique admin sign in.",
     },
+  },
+  {
+    path: "/auth",
+    redirect: "/",
   },
   {
     path: "/admin",
@@ -92,9 +96,20 @@ const router = createRouter({
   },
 });
 
+function adminRedirectTarget(redirect) {
+  const target = Array.isArray(redirect) ? redirect[0] : redirect;
+  if (typeof target === "string" && target.startsWith("/admin")) return target;
+  return "/admin/dashboard";
+}
+
 router.beforeEach(async (to) => {
+  if (to.name === "auth") {
+    const user = await getCurrentAdminUser();
+    if (user) return adminRedirectTarget(to.query.redirect);
+  }
+
   if (!to.meta.requiresAuth) return true;
-  const user = await getCurrentUser();
+  const user = await getCurrentAdminUser();
   if (user) return true;
   return { name: "auth", query: { redirect: to.fullPath } };
 });
