@@ -4,7 +4,7 @@ import vue from "eslint-plugin-vue";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist", "node_modules"] },
+  { ignores: ["dist/**", "node_modules/**", ".vercel/**"] },
   js.configs.recommended,
   ...vue.configs["flat/recommended"],
   {

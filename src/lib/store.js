@@ -45,6 +45,14 @@ export async function listCustomModels() {
   return response.data || [];
 }
 
+export async function updateCustomModel(id, payload) {
+  const response = await apiRequest(`/api/admin/models/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: payload,
+  });
+  return response.data;
+}
+
 export async function listPublicCustomModels(collectionSlug) {
   const query = collectionSlug ? `?collection_slug=${encodeURIComponent(collectionSlug)}` : "";
   const response = await apiRequest(`/api/catalog/models${query}`);

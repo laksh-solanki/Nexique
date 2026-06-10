@@ -40,7 +40,7 @@ export function modelResponse(model) {
   };
 }
 
-export function validateCustomModel(payload, admin) {
+function validateCustomModelInput(payload) {
   const collectionSlug = text(payload.collection_slug, 100);
   const name = text(payload.name, 100);
   const tag = text(payload.tag, 40);
@@ -52,7 +52,6 @@ export function validateCustomModel(payload, admin) {
   if (!tag) return { error: "Tag required." };
   if (imageData?.error) return imageData;
 
-  const now = new Date();
   return {
     value: {
       collection_slug: collectionSlug,
@@ -62,9 +61,33 @@ export function validateCustomModel(payload, admin) {
       tint,
       image_data_url: imageData,
       image_alt: imageData ? `${name} card preview` : "",
+    },
+  };
+}
+
+export function validateCustomModel(payload, admin) {
+  const result = validateCustomModelInput(payload);
+  if (result.error) return result;
+
+  const now = new Date();
+  return {
+    value: {
+      ...result.value,
       created_by: admin.email,
       created_at: now,
       updated_at: now,
+    },
+  };
+}
+
+export function validateCustomModelPatch(payload) {
+  const result = validateCustomModelInput(payload);
+  if (result.error) return result;
+
+  return {
+    value: {
+      ...result.value,
+      updated_at: new Date(),
     },
   };
 }
