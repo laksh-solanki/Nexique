@@ -150,6 +150,7 @@ import OrderDialog from "@/components/OrderDialog.vue";
 import VariantPreviewDialog from "@/components/VariantPreviewDialog.vue";
 import VariantPreview from "@/components/VariantPreview.vue";
 import {
+  baseDesignVariantSlugs,
   getCollection,
   getDesignVariants,
   getModel,
@@ -185,7 +186,10 @@ const staticModel = computed(() => {
     name: override?.name || model.name,
     tag: override?.tag || model.tag,
     tint: override?.tint || model.tint,
-    variant_slugs: normalizeDesignVariantSlugs(override?.variant_slugs || model.variant_slugs),
+    variant_slugs: normalizeDesignVariantSlugs(
+      override?.variant_slugs || model.variant_slugs,
+      baseDesignVariantSlugs,
+    ),
     asset_name: model.name,
   };
 });

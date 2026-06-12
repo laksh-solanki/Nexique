@@ -1,7 +1,15 @@
 const IMAGE_MAX_DATA_URL_LENGTH = 900_000;
 const IMAGE_DATA_URL_PATTERN = /^data:image\/(png|jpe?g|webp);base64,([a-z0-9+/]+={0,2})$/i;
 const BASE_MODEL_ID_PATTERN = /^base:([a-z0-9-]+):([a-z0-9-]+)$/;
-const DESIGN_VARIANT_SLUGS = ["classic", "modern", "minimal", "bold", "vintage", "luxe"];
+const DESIGN_VARIANT_ALIASES = new Map([
+  ["classic", "classic"],
+  ["modern", "modern"],
+  ["minimal", "minimal"],
+  ["bold", "bold"],
+  ["vintage", "vintage"],
+  ["luxe", "luxe"],
+  ["luxe-gold", "luxe"],
+]);
 
 export function slugify(value) {
   return String(value || "")
@@ -30,24 +38,29 @@ function cleanImageDataUrl(value) {
 }
 
 function cleanVariantSlugs(value) {
-  if (value == null) return [...DESIGN_VARIANT_SLUGS];
+  if (value == null) return { error: "Enter at least one subcategory." };
 
-  const rawSlugs = Array.isArray(value) ? value : String(value).split(",");
+  const rawSlugs = Array.isArray(value) ? value : String(value).split(/[\n,]+/);
+  if (!rawSlugs.some((item) => String(item || "").trim())) {
+    return { error: "Enter at least one subcategory." };
+  }
   const slugs = [
     ...new Set(
       rawSlugs
-        .map((item) => text(item, 40).toLowerCase())
-        .filter((slug) => DESIGN_VARIANT_SLUGS.includes(slug)),
+        .map((item) => slugify(text(item, 60)))
+        .map((slug) => DESIGN_VARIANT_ALIASES.get(slug) || slug)
+        .filter(Boolean)
+        .map((slug) => slug.slice(0, 40)),
     ),
-  ];
+  ].slice(0, 12);
 
-  if (slugs.length === 0) return { error: "Select at least one subcategory." };
+  if (slugs.length === 0) return { error: "Enter at least one subcategory." };
   return slugs;
 }
 
 function modelVariantSlugs(model) {
   const slugs = cleanVariantSlugs(model.variant_slugs);
-  return slugs?.error ? [...DESIGN_VARIANT_SLUGS] : slugs;
+  return slugs?.error ? [] : slugs;
 }
 
 export function modelResponse(model) {

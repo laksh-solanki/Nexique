@@ -103,42 +103,23 @@
                 class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
-            <div class="space-y-2 sm:col-span-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <label class="text-sm font-medium">Subcategory cards</label>
-                  <p class="text-xs text-muted-foreground">
-                    Choose which design subcategory cards this product shows.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  class="rounded-full border border-border px-3 py-1 text-xs font-semibold transition hover:bg-secondary"
-                  @click="toggleAllVariants(form)"
-                >
-                  Select all
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <button
-                  v-for="variant in designVariants"
-                  :key="`add-${variant.slug}`"
-                  type="button"
-                  class="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm font-semibold transition"
-                  :class="
-                    editableVariantSlugs(form).includes(variant.slug)
-                      ? 'border-accent bg-accent/10 text-accent'
-                      : 'border-border bg-background text-muted-foreground hover:border-accent/40 hover:text-foreground'
-                  "
-                  @click="toggleVariantSlug(form, variant.slug)"
-                >
-                  <span>{{ variant.name }}</span>
-                  <Check
-                    v-if="editableVariantSlugs(form).includes(variant.slug)"
-                    class="h-4 w-4 shrink-0"
-                  />
-                </button>
-              </div>
+            <div class="space-y-1.5 sm:col-span-2">
+              <label for="add_subcategory_names" class="text-sm font-medium">
+                Subcategory names
+              </label>
+              <input
+                id="add_subcategory_names"
+                v-model.trim="form.subcategory_names"
+                name="subcategory_names"
+                required
+                maxlength="240"
+                placeholder="Classic, Modern, Premium"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+              <p class="text-xs text-muted-foreground">
+                Type each subcategory name separated by commas. These become the design options
+                customers see on the card page.
+              </p>
             </div>
             <div class="space-y-1.5 sm:col-span-2">
               <label for="add_image" class="text-sm font-medium">Preview image (optional)</label>
@@ -557,42 +538,22 @@
                 </div>
               </div>
 
-              <div class="space-y-2 rounded-xl border border-border p-3">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <label class="text-sm font-medium">Subcategory cards</label>
-                    <p class="text-xs text-muted-foreground">
-                      These are the design options customers see on the card page.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    class="rounded-full border border-border px-3 py-1 text-xs font-semibold transition hover:bg-secondary"
-                    @click="toggleAllVariants(detailForm)"
-                  >
-                    Select all
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  <button
-                    v-for="variant in designVariants"
-                    :key="`detail-${variant.slug}`"
-                    type="button"
-                    class="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm font-semibold transition"
-                    :class="
-                      editableVariantSlugs(detailForm).includes(variant.slug)
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border bg-background text-muted-foreground hover:border-accent/40 hover:text-foreground'
-                    "
-                    @click="toggleVariantSlug(detailForm, variant.slug)"
-                  >
-                    <span>{{ variant.name }}</span>
-                    <Check
-                      v-if="editableVariantSlugs(detailForm).includes(variant.slug)"
-                      class="h-4 w-4 shrink-0"
-                    />
-                  </button>
-                </div>
+              <div class="space-y-1.5 rounded-xl border border-border p-3">
+                <label for="detail_subcategory_names" class="text-sm font-medium">
+                  Subcategory names
+                </label>
+                <input
+                  id="detail_subcategory_names"
+                  v-model.trim="detailForm.subcategory_names"
+                  required
+                  maxlength="240"
+                  placeholder="Classic, Modern, Premium"
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                />
+                <p class="text-xs text-muted-foreground">
+                  Type each subcategory name separated by commas. These are the design options
+                  customers see on the card page.
+                </p>
               </div>
 
               <div class="space-y-1.5">
@@ -674,14 +635,14 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
-import { Check, Eye, Loader2, Plus, Save, Search, Trash2, X } from "@lucide/vue";
+import { Eye, Loader2, Plus, Save, Search, Trash2, X } from "@lucide/vue";
 
 import CategoryCardArt from "@/components/CategoryCardArt.vue";
 import { useToast } from "@/composables/useToast";
 import {
+  baseDesignVariantSlugs,
   collections,
-  defaultDesignVariantSlugs,
-  designVariants,
+  designVariantName,
   normalizeDesignVariantSlugs,
 } from "@/lib/collections-data";
 import {
@@ -716,7 +677,7 @@ const form = reactive({
   tag: "",
   tint: "",
   image_data_url: "",
-  variant_slugs: [...defaultDesignVariantSlugs],
+  subcategory_names: "",
 });
 const detailForm = reactive({
   collection_slug: "",
@@ -724,7 +685,7 @@ const detailForm = reactive({
   tag: "",
   tint: "",
   image_data_url: "",
-  variant_slugs: [...defaultDesignVariantSlugs],
+  subcategory_names: "",
 });
 const baseModelId = (collectionSlug, modelSlug) => `base:${collectionSlug}:${modelSlug}`;
 const staticProducts = computed(() =>
@@ -757,6 +718,7 @@ const staticProducts = computed(() =>
           image_data_url: override?.image_data_url || "",
           variant_slugs: normalizeDesignVariantSlugs(
             override?.variant_slugs || model.variant_slugs,
+            baseDesignVariantSlugs,
           ),
           editable: true,
           deletable: true,
@@ -855,6 +817,12 @@ async function addModel() {
     return;
   }
 
+  const variantSlugs = parseSubcategoryNames(form.subcategory_names);
+  if (variantSlugs.length === 0) {
+    toast.error("Enter at least one subcategory name.");
+    return;
+  }
+
   busy.value = true;
   try {
     await createCustomModel({
@@ -863,7 +831,7 @@ async function addModel() {
       tag: form.tag,
       tint: form.tint || "from-rose-200 to-amber-100",
       image_data_url: form.image_data_url,
-      variant_slugs: normalizeDesignVariantSlugs(form.variant_slugs),
+      variant_slugs: variantSlugs,
     });
     toast.success("Card added");
     resetAddForm();
@@ -891,7 +859,7 @@ function resetAddForm() {
   form.name = "";
   form.tag = "";
   form.tint = "";
-  resetVariantSlugs(form);
+  form.subcategory_names = "";
   clearImage();
 }
 
@@ -1013,7 +981,7 @@ function openProduct(product) {
   detailForm.tag = product.tag;
   detailForm.tint = product.tint || "from-rose-200 to-amber-100";
   detailForm.image_data_url = product.image_data_url || "";
-  detailForm.variant_slugs = normalizeDesignVariantSlugs(product.variant_slugs);
+  detailForm.subcategory_names = variantNamesFor(product.variant_slugs).join(", ");
   if (detailImageInput.value) detailImageInput.value.value = "";
 }
 
@@ -1047,6 +1015,12 @@ async function saveProductDetails() {
     return;
   }
 
+  const variantSlugs = parseSubcategoryNames(detailForm.subcategory_names);
+  if (variantSlugs.length === 0) {
+    toast.error("Enter at least one subcategory name.");
+    return;
+  }
+
   editBusy.value = true;
   try {
     const payload = {
@@ -1057,7 +1031,7 @@ async function saveProductDetails() {
       tag: detailForm.tag,
       tint: detailForm.tint || "from-rose-200 to-amber-100",
       image_data_url: detailForm.image_data_url,
-      variant_slugs: normalizeDesignVariantSlugs(detailForm.variant_slugs),
+      variant_slugs: variantSlugs,
     };
 
     if (selectedProduct.value.base) {
@@ -1084,41 +1058,21 @@ async function saveProductDetails() {
   }
 }
 
-function resetVariantSlugs(target) {
-  target.variant_slugs = [...defaultDesignVariantSlugs];
-}
-
-function toggleVariantSlug(target, slug) {
-  const current = editableVariantSlugs(target);
-  if (current.includes(slug) && current.length === 1) {
-    toast.error("Select at least one subcategory.");
-    return;
-  }
-
-  target.variant_slugs = current.includes(slug)
-    ? current.filter((item) => item !== slug)
-    : [...current, slug];
-}
-
-function toggleAllVariants(target) {
-  target.variant_slugs = [...defaultDesignVariantSlugs];
-}
-
 function variantNamesFor(slugs) {
-  const selected = new Set(normalizeDesignVariantSlugs(slugs));
-  return designVariants
-    .filter((variant) => selected.has(variant.slug))
-    .map((variant) => variant.name);
+  return normalizeDesignVariantSlugs(slugs).map(designVariantName);
 }
 
 function variantSummary(product) {
   return variantNamesFor(product.variant_slugs).join(", ");
 }
 
-function editableVariantSlugs(target) {
-  return Array.isArray(target.variant_slugs)
-    ? target.variant_slugs.filter((slug) => defaultDesignVariantSlugs.includes(slug))
-    : [...defaultDesignVariantSlugs];
+function parseSubcategoryNames(value) {
+  const names = String(value || "")
+    .split(/[\n,]+/)
+    .map((name) => name.trim())
+    .filter(Boolean);
+
+  return names.length ? normalizeDesignVariantSlugs(names) : [];
 }
 
 async function remove(product) {

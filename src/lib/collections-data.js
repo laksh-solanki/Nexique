@@ -204,19 +204,64 @@ export const designVariants = [
   },
 ];
 
-export const defaultDesignVariantSlugs = designVariants.map((variant) => variant.slug);
+export const baseDesignVariantSlugs = designVariants.map((variant) => variant.slug);
+const designVariantBySlug = new Map(designVariants.map((variant) => [variant.slug, variant]));
+const designVariantAliases = new Map(
+  designVariants.flatMap((variant) => [
+    [variant.slug, variant.slug],
+    [slugify(variant.name), variant.slug],
+  ]),
+);
 
-export function normalizeDesignVariantSlugs(value) {
-  if (!Array.isArray(value)) return [...defaultDesignVariantSlugs];
+function titleCaseSlug(value) {
+  return String(value || "")
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
-  const validSlugs = new Set(defaultDesignVariantSlugs);
+function variantSlugFromInput(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  const slug = slugify(raw);
+  return designVariantAliases.get(slug) || slug;
+}
+
+export function normalizeDesignVariantSlugs(value, fallbackSlugs = []) {
+  if (value == null) return [...fallbackSlugs];
+
+  const rawValues = Array.isArray(value) ? value : String(value).split(/[\n,]+/);
   const slugs = [
     ...new Set(
-      value.map((item) => String(item || "").trim()).filter((slug) => validSlugs.has(slug)),
+      rawValues
+        .map((item) => variantSlugFromInput(item))
+        .filter(Boolean)
+        .map((slug) => slug.slice(0, 40)),
     ),
-  ];
+  ].slice(0, 12);
 
-  return slugs.length ? slugs : [...defaultDesignVariantSlugs];
+  return slugs.length ? slugs : [...fallbackSlugs];
+}
+
+export function designVariantName(slug) {
+  const normalizedSlug = variantSlugFromInput(slug);
+  return designVariantBySlug.get(normalizedSlug)?.name || titleCaseSlug(normalizedSlug);
+}
+
+function designVariantForSlug(slug, index) {
+  const normalizedSlug = variantSlugFromInput(slug);
+  const existing = designVariantBySlug.get(normalizedSlug);
+  if (existing) return existing;
+
+  const template = designVariants[index % designVariants.length] || designVariants[0];
+  return {
+    slug: normalizedSlug,
+    name: designVariantName(normalizedSlug),
+    blurb: "A custom design subcategory configured from the admin catalog.",
+    layout: template?.layout || "classic",
+  };
 }
 
 export function getCollection(slug) {
@@ -229,7 +274,7 @@ export function getModel(slug, modelSlug) {
 
 export function getDesignVariants(collectionSlug, modelName, assetMap = {}, variantSlugs = null) {
   const selectedSlugs = normalizeDesignVariantSlugs(variantSlugs);
-  const selectedVariants = designVariants.filter((variant) => selectedSlugs.includes(variant.slug));
+  const selectedVariants = selectedSlugs.map((slug, index) => designVariantForSlug(slug, index));
 
   if (collectionSlug !== "wedding-cards" || !modelName) return selectedVariants;
 
@@ -253,9 +298,9 @@ export function getDesignVariants(collectionSlug, modelName, assetMap = {}, vari
 
 export function getWeddingVariantAssetKeys(modelName, variantSlugs = null) {
   if (!modelName) return [];
-  return designVariants
-    .filter((variant) => normalizeDesignVariantSlugs(variantSlugs).includes(variant.slug))
-    .map((variant) => weddingVariantAssetKey(modelName, variant.name));
+  return normalizeDesignVariantSlugs(variantSlugs).map((slug) =>
+    weddingVariantAssetKey(modelName, designVariantName(slug)),
+  );
 }
 
 export function getWeddingPreviewAssetKeys(modelName) {

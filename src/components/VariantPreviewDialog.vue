@@ -29,7 +29,7 @@
               id="variant-preview-title"
               class="font-display truncate text-xl font-bold tracking-tight sm:text-2xl"
             >
-              {{ model.name }} - {{ variant.name }}
+              {{ dialogTitle }}
             </h2>
           </div>
 
@@ -65,7 +65,7 @@
               @click="openOrderForm"
             >
               <ShoppingBag class="h-4 w-4" />
-              Order now
+              Order Now
             </button>
             <button
               type="button"
@@ -143,17 +143,17 @@
             class="min-h-0 overflow-y-auto border-t border-border bg-card p-4 sm:p-6 lg:border-l lg:border-t-0"
           >
             <div class="mb-5">
-              <h3 class="font-display text-2xl font-bold tracking-tight">Order this card</h3>
+              <h3 class="font-display text-2xl font-bold tracking-tight">Order Now</h3>
               <p class="text-sm text-muted-foreground">
-                {{ model.name }} - {{ variant.name }} - {{ collection.name }}
+                {{ orderSummary }}
               </p>
             </div>
             <OrderForm
               :collection-slug="collection.slug"
               :collection-name="collection.name"
-              :model-slug="model.slug"
-              :model-name="model.name"
-              :design-variant="variant.name"
+              :model-slug="orderModelSlug"
+              :model-name="orderModelName"
+              :design-variant="orderDesignVariant"
               @submitted="handleSubmitted"
             />
           </aside>
@@ -179,6 +179,11 @@ const props = defineProps({
   collection: { type: Object, default: null },
   model: { type: Object, default: null },
   variant: { type: Object, default: null },
+  title: { type: String, default: "" },
+  summary: { type: String, default: "" },
+  orderModelSlug: { type: String, default: "" },
+  orderModelName: { type: String, default: "" },
+  orderDesignVariant: { type: String, default: null },
 });
 
 const emit = defineEmits(["close"]);
@@ -196,6 +201,19 @@ let previousBodyOverflow = "";
 const canZoomOut = computed(() => zoom.value > ZOOM_MIN);
 const canZoomIn = computed(() => zoom.value < ZOOM_MAX);
 const canDragPreview = computed(() => zoom.value > 100);
+const dialogTitle = computed(() => {
+  if (props.title) return props.title;
+  return [props.model?.name, props.variant?.name].filter(Boolean).join(" - ");
+});
+const orderSummary = computed(() => {
+  if (props.summary) return props.summary;
+  return [props.model?.name, props.variant?.name, props.collection?.name]
+    .filter(Boolean)
+    .join(" - ");
+});
+const orderModelSlug = computed(() => props.orderModelSlug || props.model?.slug || "");
+const orderModelName = computed(() => props.orderModelName || props.model?.name || "");
+const orderDesignVariant = computed(() => props.orderDesignVariant ?? props.variant?.name ?? "");
 const previewDragClass = computed(() => {
   if (!canDragPreview.value) return "";
   return isDraggingPreview.value
