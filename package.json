@@ -11,6 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "seed:admins": "node scripts/seed-admins.mjs",
+    "seed:assets": "node scripts/seed-assets.mjs",
+    "clear:cards": "node scripts/clear-cards.mjs",
     "mongo:check": "node scripts/check-mongo.mjs",
     "vercel:dev": "npx --yes vercel@54.9.1 dev --listen 3000 --scope laksh-solanki-coders-projects",
     "vercel:link": "npx --yes vercel@54.9.1 link --scope laksh-solanki-coders-projects",

@@ -10,6 +10,8 @@ import {
   Wand2,
 } from "@lucide/vue";
 
+import { weddingVariantAssetKey } from "@/lib/catalogAssetKeys";
+
 export const slugify = (value) =>
   value
     .toLowerCase()
@@ -23,41 +25,7 @@ const model = (name, tag, tint) => ({
   slug: slugify(name),
 });
 
-const weddingCardAssets = import.meta.glob("../assets/weddings card/*.{png,jpg,jpeg,webp}", {
-  eager: true,
-  import: "default",
-});
-
-const normalizeAssetLabel = (value) =>
-  value
-    .toLowerCase()
-    .replace(/\blvory\b/g, "ivory")
-    .replace(/\bcards?\b/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-
-const weddingAssetKey = (modelName, variantName) =>
-  `${normalizeAssetLabel(modelName)}|${normalizeAssetLabel(variantName)}`;
-
-const weddingCardAssetMap = Object.entries(weddingCardAssets).reduce((map, [path, src]) => {
-  const fileName =
-    path
-      .split("/")
-      .pop()
-      ?.replace(/\.[^.]+$/, "") ?? "";
-  const [modelName, variantName] = fileName.split(/\s*-\s*/);
-
-  if (modelName && variantName) {
-    map[weddingAssetKey(modelName, variantName)] = src;
-  }
-
-  return map;
-}, {});
-
 const weddingPreviewPriority = ["Classic", "Modern", "Minimal", "Vintage", "Luxe Gold", "Bold"];
-
-const getWeddingCardAsset = (modelName, variantName) =>
-  weddingCardAssetMap[weddingAssetKey(modelName, variantName)];
 
 export const collections = {
   "greeting-cards": {
@@ -236,6 +204,21 @@ export const designVariants = [
   },
 ];
 
+export const defaultDesignVariantSlugs = designVariants.map((variant) => variant.slug);
+
+export function normalizeDesignVariantSlugs(value) {
+  if (!Array.isArray(value)) return [...defaultDesignVariantSlugs];
+
+  const validSlugs = new Set(defaultDesignVariantSlugs);
+  const slugs = [
+    ...new Set(
+      value.map((item) => String(item || "").trim()).filter((slug) => validSlugs.has(slug)),
+    ),
+  ];
+
+  return slugs.length ? slugs : [...defaultDesignVariantSlugs];
+}
+
 export function getCollection(slug) {
   return collections[slug];
 }
@@ -244,30 +227,56 @@ export function getModel(slug, modelSlug) {
   return collections[slug]?.models.find((item) => item.slug === modelSlug);
 }
 
-export function getDesignVariants(collectionSlug, modelName) {
-  if (collectionSlug !== "wedding-cards" || !modelName) return designVariants;
+export function getDesignVariants(collectionSlug, modelName, assetMap = {}, variantSlugs = null) {
+  const selectedSlugs = normalizeDesignVariantSlugs(variantSlugs);
+  const selectedVariants = designVariants.filter((variant) => selectedSlugs.includes(variant.slug));
 
-  return designVariants.map((variant) => {
-    const imageSrc = getWeddingCardAsset(modelName, variant.name);
+  if (collectionSlug !== "wedding-cards" || !modelName) return selectedVariants;
 
-    return imageSrc
+  return selectedVariants.map((variant) => {
+    const assetKey = weddingVariantAssetKey(modelName, variant.name);
+    const asset = assetMap[assetKey];
+
+    return asset?.image_data_url
       ? {
           ...variant,
-          imageSrc,
-          imageAlt: `${modelName} ${variant.name} wedding card design`,
+          assetKey,
+          imageSrc: asset.image_data_url,
+          imageAlt: asset.alt || `${modelName} ${variant.name} wedding card design`,
         }
-      : variant;
+      : {
+          ...variant,
+          assetKey,
+        };
   });
 }
 
-export function getModelPreviewAsset(collectionSlug, modelName) {
+export function getWeddingVariantAssetKeys(modelName, variantSlugs = null) {
+  if (!modelName) return [];
+  return designVariants
+    .filter((variant) => normalizeDesignVariantSlugs(variantSlugs).includes(variant.slug))
+    .map((variant) => weddingVariantAssetKey(modelName, variant.name));
+}
+
+export function getWeddingPreviewAssetKeys(modelName) {
+  if (!modelName) return [];
+  return weddingPreviewPriority.map((variantName) =>
+    weddingVariantAssetKey(modelName, variantName),
+  );
+}
+
+export function getModelPreviewAsset(collectionSlug, modelName, assetMap = {}) {
   if (collectionSlug !== "wedding-cards" || !modelName) return null;
 
-  const variantName = weddingPreviewPriority.find((name) => getWeddingCardAsset(modelName, name));
+  const variantName = weddingPreviewPriority.find((name) => {
+    const asset = assetMap[weddingVariantAssetKey(modelName, name)];
+    return asset?.image_data_url;
+  });
   if (!variantName) return null;
 
+  const asset = assetMap[weddingVariantAssetKey(modelName, variantName)];
   return {
-    src: getWeddingCardAsset(modelName, variantName),
-    alt: `${modelName} ${variantName} wedding card design`,
+    src: asset.image_data_url,
+    alt: asset.alt || `${modelName} ${variantName} wedding card design`,
   };
 }

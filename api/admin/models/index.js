@@ -1,5 +1,6 @@
 import {
   badRequest,
+  assertSameOrigin,
   handleApiError,
   methodNotAllowed,
   readJson,
@@ -8,7 +9,13 @@ import {
 } from "../../_lib/http.js";
 import { requireAdmin } from "../../_lib/admin.js";
 import { getDb } from "../../_lib/mongodb.js";
-import { modelResponse, validateCustomModel } from "../../_lib/models.js";
+import {
+  modelOverrideResponse,
+  modelResponse,
+  validateCustomModel,
+  validateModelOverride,
+  validateModelOverrideDelete,
+} from "../../_lib/models.js";
 
 async function uniqueSlug(db, collectionSlug, baseSlug) {
   const rootSlug = baseSlug || "custom-card";
@@ -26,13 +33,48 @@ async function uniqueSlug(db, collectionSlug, baseSlug) {
 }
 
 export default async function handler(req, res) {
-  if (!["GET", "POST"].includes(req.method)) return methodNotAllowed(res, ["GET", "POST"]);
+  const isOverridesRequest = req.query.overrides === "1";
+  const allowedMethods = isOverridesRequest ? ["GET", "PATCH", "DELETE"] : ["GET", "POST"];
+  if (!allowedMethods.includes(req.method)) return methodNotAllowed(res, allowedMethods);
 
   try {
+    assertSameOrigin(req);
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized(res);
 
     const db = await getDb();
+
+    if (isOverridesRequest) {
+      const collection = db.collection("catalog_model_overrides");
+
+      if (req.method === "GET") {
+        const overrides = await collection.find({}).sort({ updated_at: -1 }).toArray();
+        return sendJson(res, 200, { data: overrides.map(modelOverrideResponse) });
+      }
+
+      if (req.method === "DELETE") {
+        const result = validateModelOverrideDelete(await readJson(req), admin);
+        if (result.error) return badRequest(res, result.error);
+
+        await collection.updateOne(
+          { source_model_id: result.value.source_model_id },
+          { $set: result.value, $setOnInsert: result.insert },
+          { upsert: true },
+        );
+        return sendJson(res, 200, { ok: true });
+      }
+
+      const result = validateModelOverride(await readJson(req), admin);
+      if (result.error) return badRequest(res, result.error);
+
+      await collection.updateOne(
+        { source_model_id: result.value.source_model_id },
+        { $set: result.value, $setOnInsert: result.insert },
+        { upsert: true },
+      );
+      const model = await collection.findOne({ source_model_id: result.value.source_model_id });
+      return sendJson(res, 200, { data: modelOverrideResponse(model) });
+    }
 
     if (req.method === "GET") {
       const models = await db

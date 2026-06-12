@@ -48,6 +48,7 @@ const routes = [
     meta: {
       title: "Admin - Nexique",
       description: "Nexique admin sign in.",
+      robots: "noindex, nofollow",
     },
   },
   {
@@ -57,7 +58,7 @@ const routes = [
   {
     path: "/admin",
     component: () => import("@/pages/admin/AdminLayout.vue"),
-    meta: { requiresAuth: true, title: "Admin - Nexique" },
+    meta: { requiresAuth: true, title: "Admin - Nexique", robots: "noindex, nofollow" },
     children: [
       { path: "", redirect: "/admin/dashboard" },
       {
@@ -119,6 +120,11 @@ router.afterEach((to) => {
   const metaDescription = document.querySelector('meta[name="description"]');
   if (metaDescription && to.meta.description) {
     metaDescription.setAttribute("content", to.meta.description);
+  }
+  const robots = [...to.matched].reverse().find((record) => record.meta.robots)?.meta.robots;
+  const metaRobots = document.querySelector('meta[name="robots"]');
+  if (metaRobots) {
+    metaRobots.setAttribute("content", robots || "index, follow");
   }
 });
 

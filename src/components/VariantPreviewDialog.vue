@@ -98,20 +98,39 @@
                 class="flex items-center justify-center transition-[width,height] duration-200"
                 :style="zoomFrameStyle"
               >
+                <div
+                  v-if="variant.imageLoading"
+                  class="flex min-h-80 w-full max-w-md flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                >
+                  <Loader2 class="h-5 w-5 animate-spin text-accent" />
+                  <span>Loading image</span>
+                </div>
                 <img
-                  v-if="variant.imageSrc"
+                  v-else-if="variant.imageSrc"
                   :src="variant.imageSrc"
                   :alt="variant.imageAlt || `${model.name} ${variant.name} design`"
                   draggable="false"
                   class="max-h-full max-w-full rounded-lg object-contain shadow-card"
                   @dragstart.prevent
                 />
+                <div
+                  v-else-if="variant.imageError"
+                  class="flex min-h-80 w-full max-w-md flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                >
+                  <ImageOff class="h-5 w-5 text-accent" />
+                  <span>Image not loaded</span>
+                  <span class="max-w-sm text-[10px] font-medium normal-case tracking-normal">
+                    {{ variant.imageError }}
+                  </span>
+                </div>
                 <div v-else class="w-full max-w-md">
                   <VariantPreview
                     :variant="variant"
                     :tint="model.tint"
                     :icon="collection.icon"
                     :title="model.name"
+                    :image-loading="variant.imageLoading"
+                    :image-error="variant.imageError"
                   />
                 </div>
               </div>
@@ -146,7 +165,7 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
-import { ShoppingBag, X, ZoomIn, ZoomOut } from "@lucide/vue";
+import { ImageOff, Loader2, ShoppingBag, X, ZoomIn, ZoomOut } from "@lucide/vue";
 
 import OrderForm from "@/components/OrderForm.vue";
 import VariantPreview from "@/components/VariantPreview.vue";

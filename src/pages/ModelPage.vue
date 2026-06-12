@@ -31,7 +31,8 @@
           {{ model.name }}
         </h1>
         <p class="mx-auto mt-4 max-w-xl text-burgundy/80">
-          Pick a design variant below - every card is precision-printed on premium stock.
+          Pick an active design subcategory below - every card is precision-printed on premium
+          stock.
         </p>
       </div>
     </section>
@@ -62,7 +63,7 @@
       <div class="mb-12 text-center">
         <p class="text-xs font-medium uppercase tracking-widest text-accent">Design Variants</p>
         <h2 class="font-display mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-          6 ways to make it yours
+          {{ modelDesignVariants.length }} ways to make it yours
         </h2>
       </div>
 
@@ -86,6 +87,8 @@
             :title="model.name"
             :image-src="variant.imageSrc"
             :image-alt="variant.imageAlt"
+            :image-loading="variant.imageLoading"
+            :image-error="variant.imageError"
           />
           <div class="mt-4 flex items-center justify-between">
             <h3 class="font-display text-lg font-bold tracking-tight">{{ variant.name }}</h3>
@@ -146,20 +149,73 @@ import BirthdayBloomCard from "@/components/BirthdayBloomCard.vue";
 import OrderDialog from "@/components/OrderDialog.vue";
 import VariantPreviewDialog from "@/components/VariantPreviewDialog.vue";
 import VariantPreview from "@/components/VariantPreview.vue";
-import { getCollection, getDesignVariants, getModel } from "@/lib/collections-data";
-import { listPublicCustomModels } from "@/lib/store";
+import {
+  getCollection,
+  getDesignVariants,
+  getModel,
+  getWeddingVariantAssetKeys,
+  normalizeDesignVariantSlugs,
+} from "@/lib/collections-data";
+import {
+  catalogAssetCache,
+  catalogAssetErrors,
+  catalogAssetLoading,
+  loadCatalogAssets,
+} from "@/lib/catalogAssets";
+import { listPublicCustomModels, listPublicModelOverrides } from "@/lib/store";
 import NotFound from "@/pages/NotFound.vue";
 
 const route = useRoute();
 const collection = computed(() => getCollection(route.params.slug));
 const customModels = ref([]);
+const modelOverrides = ref({});
 const customLoading = ref(false);
-const staticModel = computed(() => getModel(route.params.slug, route.params.modelSlug));
+const baseModelId = (collectionSlug, modelSlug) => `base:${collectionSlug}:${modelSlug}`;
+const staticModel = computed(() => {
+  const model = getModel(route.params.slug, route.params.modelSlug);
+  if (!model) return null;
+
+  const override = modelOverrides.value[baseModelId(route.params.slug, model.slug)];
+  if (override?.deleted) return null;
+
+  return {
+    ...model,
+    ...override,
+    slug: model.slug,
+    name: override?.name || model.name,
+    tag: override?.tag || model.tag,
+    tint: override?.tint || model.tint,
+    variant_slugs: normalizeDesignVariantSlugs(override?.variant_slugs || model.variant_slugs),
+    asset_name: model.name,
+  };
+});
 const customModel = computed(() =>
   customModels.value.find((item) => item.slug === route.params.modelSlug),
 );
 const model = computed(() => staticModel.value || customModel.value);
-const modelDesignVariants = computed(() => getDesignVariants(route.params.slug, model.value?.name));
+const modelAssetName = computed(() => model.value?.asset_name || model.value?.name || "");
+const modelVariantSlugs = computed(() => normalizeDesignVariantSlugs(model.value?.variant_slugs));
+const variantAssetKeys = computed(() =>
+  route.params.slug === "wedding-cards"
+    ? getWeddingVariantAssetKeys(modelAssetName.value, modelVariantSlugs.value)
+    : [],
+);
+const modelDesignVariants = computed(() =>
+  getDesignVariants(
+    route.params.slug,
+    modelAssetName.value,
+    catalogAssetCache.value,
+    modelVariantSlugs.value,
+  ).map((variant) =>
+    variant.assetKey
+      ? {
+          ...variant,
+          imageLoading: Boolean(catalogAssetLoading.value[variant.assetKey]),
+          imageError: catalogAssetErrors.value[variant.assetKey] || "",
+        }
+      : variant,
+  ),
+);
 const previewOpen = ref(false);
 const selectedVariant = ref(null);
 const isBirthdayBloom = computed(
@@ -180,21 +236,44 @@ watch(
   async (slug) => {
     if (!slug || !getCollection(slug)) {
       customModels.value = [];
+      modelOverrides.value = {};
       return;
     }
 
     customLoading.value = true;
     try {
-      customModels.value = await listPublicCustomModels(slug);
+      const [custom, overrides] = await Promise.all([
+        listPublicCustomModels(slug),
+        listPublicModelOverrides(slug),
+      ]);
+      customModels.value = custom;
+      modelOverrides.value = Object.fromEntries(
+        overrides.map((model) => [model.source_model_id, model]),
+      );
     } catch (err) {
       console.error(err);
       customModels.value = [];
+      modelOverrides.value = {};
     } finally {
       customLoading.value = false;
     }
   },
   { immediate: true },
 );
+
+watch(
+  variantAssetKeys,
+  (keys) => {
+    if (keys.length) loadCatalogAssets(keys);
+  },
+  { immediate: true },
+);
+
+watch(modelDesignVariants, (variants) => {
+  if (!selectedVariant.value) return;
+  const latestVariant = variants.find((variant) => variant.slug === selectedVariant.value.slug);
+  if (latestVariant) selectedVariant.value = latestVariant;
+});
 
 watchEffect(() => {
   if (!collection.value || !model.value) return;

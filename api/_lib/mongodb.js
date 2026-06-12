@@ -34,6 +34,18 @@ export async function ensureIndexes(db) {
     db.collection("orders").createIndex({ status: 1, priority: 1 }),
     db.collection("custom_card_models").createIndex({ collection_slug: 1, slug: 1 }),
     db.collection("custom_card_models").createIndex({ created_at: -1 }),
+    db.collection("catalog_model_overrides").createIndex({ source_model_id: 1 }, { unique: true }),
+    db.collection("catalog_model_overrides").createIndex({ collection_slug: 1 }),
+    db.collection("catalog_assets").createIndex({ key: 1 }, { unique: true }),
+    db.collection("catalog_assets").createIndex({ kind: 1, collection_slug: 1 }),
+    db.collection("admin_login_attempts").createIndex({ key: 1 }, { unique: true }),
+    db
+      .collection("admin_login_attempts")
+      .createIndex({ updated_at: 1 }, { expireAfterSeconds: 60 * 60 * 24 }),
+    db.collection("public_order_attempts").createIndex({ key: 1 }, { unique: true }),
+    db
+      .collection("public_order_attempts")
+      .createIndex({ updated_at: 1 }, { expireAfterSeconds: 60 * 60 * 24 }),
   ]);
 }
 

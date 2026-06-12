@@ -34,9 +34,9 @@
           <span
             v-if="admin"
             class="inline-flex max-w-full items-center truncate rounded-full bg-secondary px-3 py-1 text-xs text-muted-foreground"
-            :title="`${admin.name} · ${admin.email}`"
+            :title="`${admin.name} - ${admin.email}`"
           >
-            {{ admin.name }} · {{ admin.role }}
+            {{ admin.name }} &middot; {{ admin.role }}
           </span>
           <button
             type="button"

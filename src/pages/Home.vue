@@ -54,11 +54,30 @@
             </div>
 
             <figure class="relative mt-12">
-              <img
-                :src="hero"
-                alt="Nexique editorial selection"
-                class="h-72 w-full rounded-sm object-cover shadow-card sm:h-[460px]"
-              />
+              <div
+                class="relative h-72 w-full overflow-hidden rounded-sm bg-secondary shadow-card sm:h-[460px]"
+              >
+                <img
+                  v-if="heroAsset?.image_data_url"
+                  :src="heroAsset.image_data_url"
+                  :alt="heroAsset.alt || 'Nexique editorial selection'"
+                  class="h-full w-full object-cover"
+                />
+                <div
+                  v-else
+                  class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                >
+                  <Loader2 v-if="heroLoading" class="h-5 w-5 animate-spin text-accent" />
+                  <ImageOff v-else class="h-5 w-5 text-accent" />
+                  <span>{{ heroLoading ? "Loading image" : "Image not loaded" }}</span>
+                  <span
+                    v-if="heroError"
+                    class="max-w-sm text-[10px] font-medium normal-case tracking-normal"
+                  >
+                    {{ heroError }}
+                  </span>
+                </div>
+              </div>
               <figcaption
                 class="mt-3 flex flex-col gap-1 border-t border-foreground/10 pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
               >
@@ -423,9 +442,9 @@
 
     <footer class="border-t border-foreground/15 bg-background px-4 py-10 sm:px-6">
       <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 md:flex-row">
-        <span class="font-display text-xl font-medium tracking-tight text-primary"
-          >Nexique<span class="text-accent">.</span></span
-        >
+        <RouterLink to="/" class="inline-flex min-w-0 items-center">
+          <BrandLockup compact />
+        </RouterLink>
         <div
           class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs uppercase tracking-widest text-muted-foreground"
         >
@@ -453,8 +472,10 @@ import {
   Gift,
   Heart,
   HeartHandshake,
+  ImageOff,
   Layers,
   LayoutTemplate,
+  Loader2,
   Mail,
   MapPin,
   MessageCircle,
@@ -466,11 +487,18 @@ import {
   Wand2,
 } from "@lucide/vue";
 
-import hero from "@/assets/cardora-hero.jpg";
 import CategoryCardArt from "@/components/CategoryCardArt.vue";
+import BrandLockup from "@/components/BrandLockup.vue";
 import SiteHeader from "@/components/SiteHeader.vue";
+import { siteAssetKey } from "@/lib/catalogAssetKeys";
+import { useCatalogAsset } from "@/lib/catalogAssets";
 
 const currentYear = new Date().getFullYear();
+const {
+  asset: heroAsset,
+  loading: heroLoading,
+  error: heroError,
+} = useCatalogAsset(siteAssetKey("hero"));
 
 const featured = [
   { slug: "wedding-cards", name: "Wedding", desc: "Gilded invitations." },

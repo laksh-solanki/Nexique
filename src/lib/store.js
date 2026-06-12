@@ -53,9 +53,47 @@ export async function updateCustomModel(id, payload) {
   return response.data;
 }
 
+export async function listModelOverrides() {
+  const response = await apiRequest("/api/admin/models?overrides=1");
+  return response.data || [];
+}
+
+export async function updateModelOverride(sourceModelId, payload) {
+  const response = await apiRequest("/api/admin/models?overrides=1", {
+    method: "PATCH",
+    body: { ...payload, source_model_id: sourceModelId },
+  });
+  return response.data;
+}
+
+export async function deleteModelOverride(sourceModelId) {
+  await apiRequest("/api/admin/models?overrides=1", {
+    method: "DELETE",
+    body: { source_model_id: sourceModelId },
+  });
+}
+
 export async function listPublicCustomModels(collectionSlug) {
   const query = collectionSlug ? `?collection_slug=${encodeURIComponent(collectionSlug)}` : "";
   const response = await apiRequest(`/api/catalog/models${query}`);
+  return response.data || [];
+}
+
+export async function listPublicModelOverrides(collectionSlug) {
+  const query = new URLSearchParams({ overrides: "1" });
+  if (collectionSlug) query.set("collection_slug", collectionSlug);
+  const response = await apiRequest(`/api/catalog/models?${query.toString()}`);
+  return response.data || [];
+}
+
+export async function listCatalogAssets(params = {}) {
+  const query = new URLSearchParams({ assets: "1" });
+
+  if (params.kind) query.set("kind", params.kind);
+  if (params.collection_slug) query.set("collection_slug", params.collection_slug);
+  if (params.keys?.length) query.set("keys", params.keys.join(","));
+
+  const response = await apiRequest(`/api/catalog/models?${query.toString()}`);
   return response.data || [];
 }
 

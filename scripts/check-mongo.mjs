@@ -26,10 +26,11 @@ const { mongoDbName } = await import("../api/_lib/env.js");
 const db = await pingMongo();
 await ensureIndexes(db);
 
-const [admins, orders, customModels] = await Promise.all([
+const [admins, orders, customModels, catalogAssets] = await Promise.all([
   db.collection("admins").countDocuments({ active: true }),
   db.collection("orders").countDocuments(),
   db.collection("custom_card_models").countDocuments(),
+  db.collection("catalog_assets").countDocuments(),
 ]);
 
 console.log(
@@ -42,6 +43,7 @@ console.log(
         admins,
         orders,
         custom_card_models: customModels,
+        catalog_assets: catalogAssets,
       },
     },
     null,

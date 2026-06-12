@@ -3,7 +3,16 @@
     class="relative flex h-60 items-center justify-center overflow-hidden rounded-xl"
     :class="containerBg"
   >
-    <template v-if="imageSrc">
+    <template v-if="imageLoading">
+      <div
+        class="flex flex-col items-center justify-center gap-2 px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+      >
+        <Loader2 class="h-5 w-5 animate-spin text-accent" />
+        <span>Loading image</span>
+      </div>
+    </template>
+
+    <template v-else-if="imageSrc">
       <img
         :src="imageSrc"
         :alt="imageAlt || `${title} ${variant.name} design`"
@@ -13,6 +22,18 @@
       <div
         class="pointer-events-none absolute inset-0 bg-gradient-to-t from-burgundy/25 via-transparent to-transparent"
       />
+    </template>
+
+    <template v-else-if="imageError">
+      <div
+        class="flex flex-col items-center justify-center gap-2 px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+      >
+        <ImageOff class="h-5 w-5 text-accent" />
+        <span>Image not loaded</span>
+        <span class="max-w-[14rem] text-[10px] font-medium normal-case tracking-normal">
+          {{ imageError }}
+        </span>
+      </div>
     </template>
 
     <template v-else>
@@ -107,6 +128,7 @@
 
 <script setup>
 import { computed } from "vue";
+import { ImageOff, Loader2 } from "@lucide/vue";
 
 const props = defineProps({
   variant: { type: Object, required: true },
@@ -115,10 +137,12 @@ const props = defineProps({
   title: { type: String, required: true },
   imageSrc: { type: String, default: "" },
   imageAlt: { type: String, default: "" },
+  imageLoading: { type: Boolean, default: false },
+  imageError: { type: String, default: "" },
 });
 
 const containerBg = computed(() => {
-  if (props.imageSrc) return "bg-stone-100";
+  if (props.imageLoading || props.imageError || props.imageSrc) return "bg-stone-100";
 
   const backgrounds = {
     classic: `bg-gradient-to-br ${props.tint}`,

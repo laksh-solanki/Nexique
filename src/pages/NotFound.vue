@@ -1,6 +1,9 @@
 <template>
   <div class="flex min-h-screen items-center justify-center bg-background px-4">
     <div class="max-w-md text-center">
+      <RouterLink to="/" class="mb-8 inline-flex justify-center">
+        <BrandLockup compact />
+      </RouterLink>
       <h1 class="text-7xl font-bold text-foreground">404</h1>
       <h2 class="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
       <p class="mt-2 text-sm text-muted-foreground">
@@ -17,3 +20,7 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import BrandLockup from "@/components/BrandLockup.vue";
+</script>

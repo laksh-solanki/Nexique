@@ -9,9 +9,7 @@
       </RouterLink>
 
       <div class="flex items-start gap-3">
-        <div class="rounded-full bg-accent/10 p-2 text-accent">
-          <ShieldCheck class="h-5 w-5" />
-        </div>
+        <BrandLockup compact />
         <div>
           <h1 class="font-display text-3xl font-bold tracking-tight">Admin sign in</h1>
           <p class="mt-1 text-sm text-muted-foreground">
@@ -88,8 +86,9 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { AlertCircle, ArrowLeft, Eye, EyeOff, Loader2, LogIn, ShieldCheck } from "@lucide/vue";
+import { AlertCircle, ArrowLeft, Eye, EyeOff, Loader2, LogIn } from "@lucide/vue";
 
+import BrandLockup from "@/components/BrandLockup.vue";
 import { useToast } from "@/composables/useToast";
 import { signInAdmin, watchAuth } from "@/lib/auth";
 

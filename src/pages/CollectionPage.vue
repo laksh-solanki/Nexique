@@ -39,7 +39,9 @@
         <h2 class="font-display mt-2 text-3xl font-bold tracking-tight md:text-4xl">
           Choose your style
         </h2>
-        <p class="mt-3 text-sm text-muted-foreground">Tap any card to see all 6 design variants.</p>
+        <p class="mt-3 text-sm text-muted-foreground">
+          Tap any card to see its active design subcategories.
+        </p>
       </div>
 
       <div v-if="customLoading" class="mb-6 flex justify-center text-sm text-muted-foreground">
@@ -80,7 +82,12 @@
               {{ model.tag }}
             </span>
           </div>
-          <p class="mt-1 text-sm text-muted-foreground">6 design variants &middot; Made to order</p>
+          <p class="mt-1 text-sm text-muted-foreground">
+            {{ model.variant_slugs.length }} design subcategor{{
+              model.variant_slugs.length === 1 ? "y" : "ies"
+            }}
+            &middot; Made to order
+          </p>
         </RouterLink>
       </div>
 
@@ -106,28 +113,51 @@ import { ArrowLeft, Mail } from "@lucide/vue";
 import BrandLockup from "@/components/BrandLockup.vue";
 import CategoryCardArt from "@/components/CategoryCardArt.vue";
 import NotFound from "@/pages/NotFound.vue";
-import { getCollection, getModelPreviewAsset } from "@/lib/collections-data";
-import { listPublicCustomModels } from "@/lib/store";
+import { getCollection, normalizeDesignVariantSlugs } from "@/lib/collections-data";
+import { listPublicCustomModels, listPublicModelOverrides } from "@/lib/store";
 
 const route = useRoute();
 const collection = computed(() => getCollection(route.params.slug));
 const customModels = ref([]);
+const modelOverrides = ref({});
 const customLoading = ref(false);
+const baseModelId = (collectionSlug, modelSlug) => `base:${collectionSlug}:${modelSlug}`;
 const modelCards = computed(() => {
   if (!collection.value) return [];
 
-  const staticModels = collection.value.models.map((model) => ({
-    ...model,
-    preview: getModelPreviewAsset(collection.value.slug, model.name),
-  }));
+  const staticModels = collection.value.models
+    .map((model) => {
+      const override = modelOverrides.value[baseModelId(collection.value.slug, model.slug)];
+      if (override?.deleted) return null;
+
+      const preview = override?.image_data_url
+        ? {
+            src: override.image_data_url,
+            alt: override.image_alt || `${override.name} card preview`,
+          }
+        : null;
+
+      return {
+        ...model,
+        ...override,
+        slug: model.slug,
+        name: override?.name || model.name,
+        tag: override?.tag || model.tag,
+        tint: override?.tint || model.tint,
+        variant_slugs: normalizeDesignVariantSlugs(override?.variant_slugs || model.variant_slugs),
+        preview,
+      };
+    })
+    .filter(Boolean);
   const addedModels = customModels.value.map((model) => ({
     ...model,
+    variant_slugs: normalizeDesignVariantSlugs(model.variant_slugs),
     preview: model.image_data_url
       ? { src: model.image_data_url, alt: model.image_alt || `${model.name} card preview` }
       : null,
   }));
 
-  return [...staticModels, ...addedModels];
+  return [...addedModels, ...staticModels];
 });
 
 watch(
@@ -135,15 +165,24 @@ watch(
   async (slug) => {
     if (!slug || !getCollection(slug)) {
       customModels.value = [];
+      modelOverrides.value = {};
       return;
     }
 
     customLoading.value = true;
     try {
-      customModels.value = await listPublicCustomModels(slug);
+      const [custom, overrides] = await Promise.all([
+        listPublicCustomModels(slug),
+        listPublicModelOverrides(slug),
+      ]);
+      customModels.value = custom;
+      modelOverrides.value = Object.fromEntries(
+        overrides.map((model) => [model.source_model_id, model]),
+      );
     } catch (err) {
       console.error(err);
       customModels.value = [];
+      modelOverrides.value = {};
     } finally {
       customLoading.value = false;
     }

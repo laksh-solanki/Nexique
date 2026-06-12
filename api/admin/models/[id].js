@@ -1,5 +1,6 @@
 import {
   badRequest,
+  assertSameOrigin,
   handleApiError,
   methodNotAllowed,
   readJson,
@@ -41,6 +42,7 @@ export default async function handler(req, res) {
   if (!["PATCH", "DELETE"].includes(req.method)) return methodNotAllowed(res, ["PATCH", "DELETE"]);
 
   try {
+    assertSameOrigin(req);
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized(res);
 

@@ -5,7 +5,7 @@
       :class="compact ? 'h-9 w-11 sm:h-10 sm:w-12' : 'h-10 w-12 sm:h-12 sm:w-14'"
     >
       <img
-        :src="logo"
+        :src="logoUrl"
         alt=""
         width="1074"
         height="926"
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import logo from "@/assets/logo.png";
+import logoUrl from "@/assets/logo.png";
 
 defineProps({
   compact: {
