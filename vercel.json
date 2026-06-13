@@ -37,6 +37,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
+    },
+    {
       "source": "/((?!api/|src/|assets/|@vite/|@fs/|@id/|__vite_ping|.*\\..*).*)",
       "destination": "/index.html"
     }
