@@ -89,6 +89,9 @@
               <p class="mt-1 text-sm text-muted-foreground">
                 {{ subcategory.count }} card{{ subcategory.count === 1 ? "" : "s" }} available
               </p>
+              <p class="mt-2 text-sm font-semibold text-primary">
+                {{ subcategory.priceLabel }}
+              </p>
             </div>
             <span
               class="shrink-0 rounded-full bg-accent/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-accent"
@@ -161,6 +164,7 @@ import {
   catalogAssetLoading,
   loadCatalogAssets,
 } from "@/lib/catalogAssets";
+import { formatPrice } from "@/lib/pricing";
 import { listPublicCustomModels, listPublicModelOverrides } from "@/lib/store";
 
 const route = useRoute();
@@ -192,6 +196,7 @@ const modelCards = computed(() => {
         slug: model.slug,
         name: override?.name || model.name,
         tag: override?.tag || model.tag,
+        price: override?.price || model.price || null,
         tint: override?.tint || model.tint,
         variant_slugs: normalizeDesignVariantSlugs(
           override?.variant_slugs || model.variant_slugs,
@@ -246,6 +251,7 @@ const subcategoryCards = computed(() => {
   return [...groups.values()].map((subcategory) => ({
     ...subcategory,
     count: subcategory.cards.length,
+    priceLabel: priceRangeLabel(subcategory.cards),
   }));
 });
 const selectedSubcategory = computed(
@@ -258,6 +264,7 @@ const selectedDialogModel = computed(() => {
     slug: selectedSubcategory.value.slug,
     name: selectedSubcategory.value.name,
     tag: "Subcategory",
+    price_label: selectedSubcategory.value.priceLabel,
     tint: selectedSubcategory.value.tint || collection.value.accent || "from-rose-200 to-amber-100",
   };
 });
@@ -270,13 +277,17 @@ const selectedDialogSummary = computed(() =>
 const weddingAssetKeys = computed(() => {
   if (collection.value?.slug !== "wedding-cards") return [];
 
-  return [
-    ...new Set(
-      modelCards.value.flatMap((model) =>
-        getWeddingVariantAssetKeys(model.asset_name || model.name, model.variant_slugs),
-      ),
-    ),
-  ];
+  const previewKeys = new Map();
+
+  for (const model of modelCards.value) {
+    for (const variantSlug of model.variant_slugs) {
+      if (previewKeys.has(variantSlug)) continue;
+      const [assetKey] = getWeddingVariantAssetKeys(model.asset_name || model.name, [variantSlug]);
+      if (assetKey) previewKeys.set(variantSlug, assetKey);
+    }
+  }
+
+  return [...previewKeys.values()];
 });
 
 function buildSubcategoryVariant(model, variantSlug, variantIndex) {
@@ -305,6 +316,20 @@ function buildSubcategoryVariant(model, variantSlug, variantIndex) {
     imageLoading: assetKey ? Boolean(catalogAssetLoading.value[assetKey]) : false,
     imageError: assetKey ? catalogAssetErrors.value[assetKey] || "" : "",
   };
+}
+
+function priceRangeLabel(cards) {
+  const prices = cards
+    .map((card) => Number(card.price))
+    .filter((price) => Number.isFinite(price) && price > 0);
+
+  if (!prices.length) return "Price on request";
+
+  const minimum = Math.min(...prices);
+  const maximum = Math.max(...prices);
+  const label = formatPrice(minimum);
+
+  return minimum === maximum ? label : `From ${label}`;
 }
 
 function openSubcategoryDialog(subcategory) {

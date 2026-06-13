@@ -30,6 +30,9 @@
         >
           {{ model.name }}
         </h1>
+        <p class="mt-3 text-lg font-semibold text-burgundy">
+          {{ modelPriceLabel }}
+        </p>
         <p class="mx-auto mt-4 max-w-xl text-burgundy/80">
           Pick an active design subcategory below - every card is precision-printed on premium
           stock.
@@ -99,6 +102,7 @@
             </span>
           </div>
           <p class="mt-1 text-sm text-muted-foreground">{{ variant.blurb }}</p>
+          <p class="mt-2 text-sm font-semibold text-primary">{{ modelPriceLabel }}</p>
           <div @click.stop @keydown.stop @keyup.stop>
             <OrderDialog
               :collection-slug="collection.slug"
@@ -163,6 +167,7 @@ import {
   catalogAssetLoading,
   loadCatalogAssets,
 } from "@/lib/catalogAssets";
+import { formatPrice } from "@/lib/pricing";
 import { listPublicCustomModels, listPublicModelOverrides } from "@/lib/store";
 import NotFound from "@/pages/NotFound.vue";
 
@@ -185,6 +190,7 @@ const staticModel = computed(() => {
     slug: model.slug,
     name: override?.name || model.name,
     tag: override?.tag || model.tag,
+    price: override?.price || model.price || null,
     tint: override?.tint || model.tint,
     variant_slugs: normalizeDesignVariantSlugs(
       override?.variant_slugs || model.variant_slugs,
@@ -197,6 +203,7 @@ const customModel = computed(() =>
   customModels.value.find((item) => item.slug === route.params.modelSlug),
 );
 const model = computed(() => staticModel.value || customModel.value);
+const modelPriceLabel = computed(() => formatPrice(model.value?.price, "Price on request"));
 const modelAssetName = computed(() => model.value?.asset_name || model.value?.name || "");
 const modelVariantSlugs = computed(() => normalizeDesignVariantSlugs(model.value?.variant_slugs));
 const variantAssetKeys = computed(() =>

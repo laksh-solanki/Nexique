@@ -24,6 +24,25 @@ function text(value, maxLength) {
     .slice(0, maxLength);
 }
 
+function storedPrice(value) {
+  const price = Number(value);
+  if (!Number.isFinite(price) || price <= 0) return null;
+  return Math.round(price * 100) / 100;
+}
+
+function cleanPrice(value) {
+  if (value == null) return { error: "Price required." };
+
+  const raw = String(value).replace(/,/g, "").trim();
+  if (!raw) return { error: "Price required." };
+
+  const price = Number(raw);
+  if (!Number.isFinite(price) || price <= 0) return { error: "Enter a valid price." };
+  if (price > 9_999_999) return { error: "Price is too high." };
+
+  return Math.round(price * 100) / 100;
+}
+
 function cleanImageDataUrl(value) {
   const image = String(value || "").trim();
   if (!image) return "";
@@ -70,6 +89,7 @@ export function modelResponse(model) {
     name: model.name,
     slug: model.slug,
     tag: model.tag,
+    price: storedPrice(model.price),
     tint: model.tint || "from-rose-200 to-amber-100",
     image_data_url: model.image_data_url || "",
     image_alt: model.image_alt || "",
@@ -83,6 +103,7 @@ function validateCustomModelInput(payload) {
   const collectionSlug = text(payload.collection_slug, 100);
   const name = text(payload.name, 100);
   const tag = text(payload.tag, 40);
+  const price = cleanPrice(payload.price);
   const tint = text(payload.tint, 120) || "from-rose-200 to-amber-100";
   const imageData = cleanImageDataUrl(payload.image_data_url);
   const variantSlugs = cleanVariantSlugs(payload.variant_slugs);
@@ -90,6 +111,7 @@ function validateCustomModelInput(payload) {
   if (!collectionSlug) return { error: "Collection required." };
   if (!name) return { error: "Card name required." };
   if (!tag) return { error: "Tag required." };
+  if (price?.error) return price;
   if (imageData?.error) return imageData;
   if (variantSlugs?.error) return variantSlugs;
 
@@ -99,6 +121,7 @@ function validateCustomModelInput(payload) {
       name,
       slug: slugify(name),
       tag,
+      price,
       tint,
       image_data_url: imageData,
       image_alt: imageData ? `${name} card preview` : "",
@@ -142,6 +165,7 @@ export function modelOverrideResponse(model) {
     slug: model.slug,
     name: model.name || "",
     tag: model.tag || "",
+    price: storedPrice(model.price),
     tint: model.tint || "from-rose-200 to-amber-100",
     image_data_url: model.image_data_url || "",
     image_alt: model.image_alt || "",
@@ -158,12 +182,14 @@ export function validateModelOverride(payload, admin) {
 
   const name = text(payload.name, 100);
   const tag = text(payload.tag, 40);
+  const price = cleanPrice(payload.price);
   const tint = text(payload.tint, 120) || "from-rose-200 to-amber-100";
   const imageData = cleanImageDataUrl(payload.image_data_url);
   const variantSlugs = cleanVariantSlugs(payload.variant_slugs);
 
   if (!name) return { error: "Card name required." };
   if (!tag) return { error: "Tag required." };
+  if (price?.error) return price;
   if (imageData?.error) return imageData;
   if (variantSlugs?.error) return variantSlugs;
 
@@ -176,6 +202,7 @@ export function validateModelOverride(payload, admin) {
       slug,
       name,
       tag,
+      price,
       tint,
       image_data_url: imageData,
       image_alt: imageData ? `${name} card preview` : "",

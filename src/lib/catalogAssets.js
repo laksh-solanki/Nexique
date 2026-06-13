@@ -7,6 +7,7 @@ export const catalogAssetLoading = ref({});
 export const catalogAssetErrors = ref({});
 
 const pendingRequests = new Map();
+const maxAssetKeysPerRequest = 1;
 
 export function catalogAssetByKey(key) {
   return catalogAssetCache.value[key] || null;
@@ -42,33 +43,35 @@ export async function loadCatalogAssets(keys, options = {}) {
     setLoading(requestKeys, true);
     setErrors(requestKeys, "");
 
-    const request = listCatalogAssets({ keys: requestKeys })
-      .then((assets) => {
-        const updates = {};
-        const foundKeys = new Set();
+    for (const batchKeys of chunkKeys(requestKeys, maxAssetKeysPerRequest)) {
+      const request = listCatalogAssets({ keys: batchKeys })
+        .then((assets) => {
+          const updates = {};
+          const foundKeys = new Set();
 
-        for (const asset of assets) {
-          foundKeys.add(asset.key);
-          updates[asset.key] = asset;
-        }
+          for (const asset of assets) {
+            foundKeys.add(asset.key);
+            updates[asset.key] = asset;
+          }
 
-        if (Object.keys(updates).length) {
-          catalogAssetCache.value = { ...catalogAssetCache.value, ...updates };
-        }
+          if (Object.keys(updates).length) {
+            catalogAssetCache.value = { ...catalogAssetCache.value, ...updates };
+          }
 
-        const missingKeys = requestKeys.filter((key) => !foundKeys.has(key));
-        if (missingKeys.length) setErrors(missingKeys, "Image was not found in MongoDB.");
-      })
-      .catch((err) => {
-        setErrors(requestKeys, err.message || "Image could not load from MongoDB.");
-      })
-      .finally(() => {
-        setLoading(requestKeys, false);
-        requestKeys.forEach((key) => pendingRequests.delete(key));
-      });
+          const missingKeys = batchKeys.filter((key) => !foundKeys.has(key));
+          if (missingKeys.length) setErrors(missingKeys, "Image was not found in MongoDB.");
+        })
+        .catch((err) => {
+          setErrors(batchKeys, err.message || "Image could not load from MongoDB.");
+        })
+        .finally(() => {
+          setLoading(batchKeys, false);
+          batchKeys.forEach((key) => pendingRequests.delete(key));
+        });
 
-    requestKeys.forEach((key) => pendingRequests.set(key, request));
-    requestsToWaitFor.push(request);
+      batchKeys.forEach((key) => pendingRequests.set(key, request));
+      requestsToWaitFor.push(request);
+    }
   }
 
   if (requestsToWaitFor.length) await Promise.all([...new Set(requestsToWaitFor)]);
@@ -94,6 +97,14 @@ export function useCatalogAsset(keySource) {
     error,
     reload: () => loadCatalogAssets([key.value], { force: true }),
   };
+}
+
+function chunkKeys(keys, size) {
+  const chunks = [];
+  for (let index = 0; index < keys.length; index += size) {
+    chunks.push(keys.slice(index, index + size));
+  }
+  return chunks;
 }
 
 function setLoading(keys, isLoading) {

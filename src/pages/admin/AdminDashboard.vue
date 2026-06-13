@@ -173,6 +173,9 @@
                   <p class="text-xs text-muted-foreground">
                     {{ collectionName(model.collection_slug) }} &middot; {{ model.tag }}
                   </p>
+                  <p class="mt-1 text-xs font-semibold text-primary">
+                    {{ formatPrice(model.price, "Price not set") }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -227,6 +230,7 @@ import {
 import { useToast } from "@/composables/useToast";
 import { collections } from "@/lib/collections-data";
 import { priorityClass, priorityLabel, statusClass, statusLabel } from "@/lib/orderWorkflow";
+import { formatPrice } from "@/lib/pricing";
 import { getAdminHealth, listCustomModels, listOrders } from "@/lib/store";
 
 const toast = useToast();

@@ -1,6 +1,6 @@
 <template>
-  <form class="space-y-3" @submit.prevent="submit">
-    <div class="space-y-1.5">
+  <form class="grid gap-3 md:grid-cols-2" @submit.prevent="submit">
+    <div class="min-w-0 space-y-1.5">
       <label :for="fieldId('customer_name')" class="text-sm font-medium">Your name</label>
       <input
         :id="fieldId('customer_name')"
@@ -8,36 +8,11 @@
         name="customer_name"
         required
         maxlength="100"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+        class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
       />
     </div>
 
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <div class="space-y-1.5">
-        <label :for="fieldId('customer_email')" class="text-sm font-medium">Email</label>
-        <input
-          :id="fieldId('customer_email')"
-          v-model.trim="form.customer_email"
-          name="customer_email"
-          type="email"
-          required
-          maxlength="255"
-          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
-      </div>
-      <div class="space-y-1.5">
-        <label :for="fieldId('customer_phone')" class="text-sm font-medium">Phone (optional)</label>
-        <input
-          :id="fieldId('customer_phone')"
-          v-model.trim="form.customer_phone"
-          name="customer_phone"
-          maxlength="30"
-          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
-      </div>
-    </div>
-
-    <div class="space-y-1.5">
+    <div class="min-w-0 space-y-1.5">
       <label :for="fieldId('quantity')" class="text-sm font-medium">Quantity</label>
       <input
         :id="fieldId('quantity')"
@@ -47,11 +22,35 @@
         min="1"
         max="10000"
         required
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+        class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
       />
     </div>
 
-    <div class="space-y-1.5">
+    <div class="min-w-0 space-y-1.5">
+      <label :for="fieldId('customer_email')" class="text-sm font-medium">Email</label>
+      <input
+        :id="fieldId('customer_email')"
+        v-model.trim="form.customer_email"
+        name="customer_email"
+        type="email"
+        required
+        maxlength="255"
+        class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+      />
+    </div>
+
+    <div class="min-w-0 space-y-1.5">
+      <label :for="fieldId('customer_phone')" class="text-sm font-medium">Phone (optional)</label>
+      <input
+        :id="fieldId('customer_phone')"
+        v-model.trim="form.customer_phone"
+        name="customer_phone"
+        maxlength="30"
+        class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+      />
+    </div>
+
+    <div class="space-y-1.5 md:col-span-2">
       <label :for="fieldId('message')" class="text-sm font-medium">
         Message / special instructions
       </label>
@@ -61,15 +60,17 @@
         name="message"
         maxlength="1000"
         rows="3"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+        class="min-h-24 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
       />
     </div>
 
-    <div class="flex justify-end pt-2">
+    <div
+      class="sticky bottom-0 z-10 flex justify-end border-t border-border bg-card pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:col-span-2"
+    >
       <button
         type="submit"
         :disabled="submitting"
-        class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+        class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60 md:w-auto"
       >
         <Loader2 v-if="submitting" class="h-4 w-4 animate-spin" />
         <Mail v-else class="h-4 w-4" />

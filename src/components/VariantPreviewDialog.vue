@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="open && collection && model && variant"
-      class="fixed inset-0 z-[80] flex items-center justify-center px-2 py-2 sm:px-4 sm:py-6"
+      class="fixed inset-0 z-[80] flex items-end justify-center overflow-hidden px-0 pt-6 sm:items-center sm:px-4 sm:py-6"
     >
       <button
         class="absolute inset-0 bg-primary/55 backdrop-blur-sm"
@@ -12,7 +12,7 @@
       />
 
       <section
-        class="relative flex max-h-[calc(100vh-1rem)] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-card sm:max-h-[calc(100vh-3rem)]"
+        class="relative flex h-[calc(100dvh_-_0.5rem)] w-full max-w-7xl flex-col overflow-hidden rounded-t-2xl border border-border bg-background shadow-card sm:h-auto sm:max-h-[calc(100dvh_-_3rem)] sm:rounded-2xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby="variant-preview-title"
@@ -31,6 +31,9 @@
             >
               {{ dialogTitle }}
             </h2>
+            <p v-if="modelPriceLabel" class="mt-1 text-sm font-semibold text-primary">
+              {{ modelPriceLabel }}
+            </p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -61,7 +64,7 @@
             </button>
             <button
               type="button"
-              class="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              class="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-4"
               @click="openOrderForm"
             >
               <ShoppingBag class="h-4 w-4" />
@@ -80,14 +83,19 @@
         </header>
 
         <div
-          class="grid min-h-0 flex-1 overflow-hidden"
+          class="grid flex-1 overflow-y-auto lg:min-h-0 lg:overflow-hidden"
           :class="showOrderForm ? 'lg:grid-cols-[minmax(0,1fr)_420px]' : 'lg:grid-cols-1'"
         >
-          <div class="min-h-0 overflow-y-auto bg-secondary/50 p-3 sm:p-5">
+          <div class="bg-secondary/50 p-3 sm:p-5 lg:min-h-0 lg:overflow-y-auto">
             <div
               ref="previewScroller"
-              class="h-[62vh] min-h-[340px] overflow-auto rounded-xl border border-border bg-background p-4 sm:h-[70vh]"
-              :class="previewDragClass"
+              class="overflow-auto rounded-xl border border-border bg-background p-3 sm:p-4"
+              :class="[
+                previewDragClass,
+                showOrderForm
+                  ? 'h-[34vh] min-h-[190px] sm:h-[44vh] sm:min-h-[260px] lg:h-[70vh] lg:min-h-[320px]'
+                  : 'h-[50vh] min-h-[260px] sm:h-[60vh] sm:min-h-[320px] lg:h-[70vh]',
+              ]"
               @pointerdown="startPreviewDrag"
               @pointermove="dragPreview"
               @pointerup="endPreviewDrag"
@@ -140,7 +148,7 @@
           <aside
             v-if="showOrderForm"
             ref="orderPanel"
-            class="min-h-0 overflow-y-auto border-t border-border bg-card p-4 sm:p-6 lg:border-l lg:border-t-0"
+            class="scroll-mt-2 border-t border-border bg-card p-4 sm:p-6 lg:min-h-0 lg:overflow-y-auto lg:border-l lg:border-t-0"
           >
             <div class="mb-5">
               <h3 class="font-display text-2xl font-bold tracking-tight">Order Now</h3>
@@ -169,6 +177,7 @@ import { ImageOff, Loader2, ShoppingBag, X, ZoomIn, ZoomOut } from "@lucide/vue"
 
 import OrderForm from "@/components/OrderForm.vue";
 import VariantPreview from "@/components/VariantPreview.vue";
+import { formatPrice } from "@/lib/pricing";
 
 const ZOOM_MIN = 75;
 const ZOOM_MAX = 250;
@@ -205,6 +214,7 @@ const dialogTitle = computed(() => {
   if (props.title) return props.title;
   return [props.model?.name, props.variant?.name].filter(Boolean).join(" - ");
 });
+const modelPriceLabel = computed(() => props.model?.price_label || formatPrice(props.model?.price));
 const orderSummary = computed(() => {
   if (props.summary) return props.summary;
   return [props.model?.name, props.variant?.name, props.collection?.name]
@@ -250,7 +260,7 @@ function zoomIn() {
 async function openOrderForm() {
   showOrderForm.value = true;
   await nextTick();
-  orderPanel.value?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  orderPanel.value?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 function close() {

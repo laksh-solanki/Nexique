@@ -1,16 +1,14 @@
 <template>
-  <div>
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h1 class="font-display text-3xl font-bold tracking-tight">Catalog &middot; Products</h1>
-        <p class="mt-1 text-sm text-muted-foreground">
-          View every base product and add custom card models to MongoDB for customer collection
-          pages.
-        </p>
+  <div class="min-w-0">
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="min-w-0">
+        <h1 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          Catalog &middot; Products
+        </h1>
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90"
+        class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 sm:w-auto"
         @click="openAddDialog"
       >
         <Plus class="h-4 w-4" />
@@ -18,22 +16,39 @@
       </button>
     </div>
 
+    <section class="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div
+        v-for="stat in catalogStats"
+        :key="stat.label"
+        class="rounded-2xl border border-border bg-card p-4"
+      >
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            {{ stat.label }}
+          </p>
+          <component :is="stat.icon" class="h-4 w-4 text-accent" />
+        </div>
+        <p class="font-display mt-3 text-3xl font-bold text-primary">{{ stat.value }}</p>
+        <p class="mt-1 text-xs text-muted-foreground">{{ stat.note }}</p>
+      </div>
+    </section>
+
     <Teleport to="body">
       <div
         v-if="addDialogOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-end justify-center overflow-hidden bg-black/50 px-0 pt-6 sm:items-center sm:p-4"
         @click.self="closeAddDialog"
       >
         <section
-          class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl"
+          class="flex max-h-[calc(100dvh_-_0.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-border bg-background shadow-2xl sm:max-h-[min(820px,calc(100dvh_-_2rem))] sm:rounded-2xl"
           aria-modal="true"
           role="dialog"
           aria-labelledby="add-card-title"
         >
           <div
-            class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-background/95 px-5 py-4 backdrop-blur"
+            class="flex shrink-0 items-start justify-between gap-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-5 sm:py-4"
           >
-            <div>
+            <div class="min-w-0">
               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
                 New Mongo product
               </p>
@@ -41,7 +56,7 @@
             </div>
             <button
               type="button"
-              class="rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+              class="shrink-0 rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               aria-label="Close add card dialog"
               @click="closeAddDialog"
             >
@@ -49,15 +64,18 @@
             </button>
           </div>
 
-          <form class="grid gap-4 p-5 sm:grid-cols-2" @submit.prevent="addModel">
-            <div class="space-y-1.5">
+          <form
+            class="grid min-h-0 gap-4 overflow-y-auto overscroll-contain p-4 sm:p-5 md:grid-cols-2"
+            @submit.prevent="addModel"
+          >
+            <div class="min-w-0 space-y-1.5">
               <label for="add_collection_slug" class="text-sm font-medium">Collection</label>
               <select
                 id="add_collection_slug"
                 v-model="form.collection_slug"
                 name="collection_slug"
                 required
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option
                   v-for="collection in collectionList"
@@ -68,7 +86,7 @@
                 </option>
               </select>
             </div>
-            <div class="space-y-1.5">
+            <div class="min-w-0 space-y-1.5">
               <label for="add_name" class="text-sm font-medium">Card name</label>
               <input
                 id="add_name"
@@ -77,10 +95,10 @@
                 required
                 maxlength="100"
                 placeholder="e.g. Golden Sunset"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
-            <div class="space-y-1.5">
+            <div class="min-w-0 space-y-1.5">
               <label for="add_tag" class="text-sm font-medium">Tag</label>
               <input
                 id="add_tag"
@@ -89,10 +107,24 @@
                 required
                 maxlength="40"
                 placeholder="e.g. Premium"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
-            <div class="space-y-1.5">
+            <div class="min-w-0 space-y-1.5">
+              <label for="add_price" class="text-sm font-medium">Price (INR)</label>
+              <input
+                id="add_price"
+                v-model.trim="form.price"
+                name="price"
+                type="number"
+                min="1"
+                step="0.01"
+                required
+                placeholder="499"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+            <div class="min-w-0 space-y-1.5 md:col-span-2">
               <label for="add_tint" class="text-sm font-medium">Tailwind tint (optional)</label>
               <input
                 id="add_tint"
@@ -100,10 +132,10 @@
                 name="tint"
                 maxlength="100"
                 placeholder="from-rose-300 to-amber-100"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
-            <div class="space-y-1.5 sm:col-span-2">
+            <div class="min-w-0 space-y-1.5 md:col-span-2">
               <label for="add_subcategory_names" class="text-sm font-medium">
                 Subcategory names
               </label>
@@ -114,14 +146,14 @@
                 required
                 maxlength="240"
                 placeholder="Classic, Modern, Premium"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
               <p class="text-xs text-muted-foreground">
                 Type each subcategory name separated by commas. These become the design options
                 customers see on the card page.
               </p>
             </div>
-            <div class="space-y-1.5 sm:col-span-2">
+            <div class="min-w-0 space-y-1.5 md:col-span-2">
               <label for="add_image" class="text-sm font-medium">Preview image (optional)</label>
               <input
                 id="add_image"
@@ -129,21 +161,24 @@
                 name="image"
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 @change="setImage"
               />
               <p class="text-xs text-muted-foreground">
                 Upload PNG, JPG, JPEG, or WEBP up to 5 MB. Large files are optimized before saving.
               </p>
-              <div v-if="form.image_data_url" class="mt-3 flex items-center gap-3">
+              <div
+                v-if="form.image_data_url"
+                class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center"
+              >
                 <img
                   :src="form.image_data_url"
                   alt="Selected card preview"
-                  class="h-20 w-28 rounded-md border border-border object-cover"
+                  class="h-24 w-full rounded-md border border-border object-cover sm:h-20 sm:w-28"
                 />
                 <button
                   type="button"
-                  class="text-sm font-semibold text-destructive transition hover:underline"
+                  class="text-left text-sm font-semibold text-destructive transition hover:underline"
                   @click="clearImage"
                 >
                   Remove image
@@ -151,24 +186,24 @@
               </div>
             </div>
             <div
-              class="flex flex-wrap items-center gap-3 border-t border-border pt-4 sm:col-span-2"
+              class="sticky bottom-0 z-10 flex flex-col-reverse gap-3 border-t border-border bg-background pt-4 sm:flex-row sm:items-center sm:justify-end md:col-span-2"
             >
+              <button
+                type="button"
+                :disabled="busy"
+                class="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60 sm:w-auto"
+                @click="closeAddDialog"
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
                 :disabled="busy"
-                class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+                class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60 sm:w-auto"
               >
                 <Loader2 v-if="busy" class="h-4 w-4 animate-spin" />
                 <Plus v-else class="h-4 w-4" />
                 Add card
-              </button>
-              <button
-                type="button"
-                :disabled="busy"
-                class="rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
-                @click="closeAddDialog"
-              >
-                Cancel
               </button>
             </div>
           </form>
@@ -177,68 +212,160 @@
     </Teleport>
 
     <section class="mb-8">
-      <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-accent">All products</p>
-          <h2 class="font-display mt-1 text-2xl font-bold tracking-tight">Complete catalog</h2>
-          <p class="mt-1 text-sm text-muted-foreground">
-            Showing {{ filteredProducts.length }} of {{ allProducts.length }} product{{
-              allProducts.length === 1 ? "" : "s"
-            }}
-            across {{ collectionList.length }} collections.
-          </p>
+      <div
+        class="mb-4 grid gap-4 rounded-2xl border border-border bg-card p-4 lg:grid-cols-[minmax(0,1fr)_220px]"
+      >
+        <div class="grid items-start gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+          <label class="relative block self-start">
+            <span class="sr-only">Search products</span>
+            <Search
+              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              v-model.trim="search"
+              type="search"
+              placeholder="Search product, collection, tag, price"
+              class="min-h-11 w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm"
+            />
+          </label>
+          <label class="block self-start">
+            <span class="sr-only">Filter collection</span>
+            <select
+              v-model="selectedCollection"
+              class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="all">All collections</option>
+              <option
+                v-for="collection in collectionList"
+                :key="collection.slug"
+                :value="collection.slug"
+              >
+                {{ collection.name }}
+              </option>
+            </select>
+          </label>
         </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="grid grid-cols-3 rounded-full border border-border bg-background p-1">
+            <button
+              v-for="option in sourceOptions"
+              :key="option.value"
+              type="button"
+              class="inline-flex min-h-9 items-center justify-center rounded-full px-3 text-xs font-semibold transition"
+              :class="
+                selectedSource === option.value
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+              "
+              @click="selectedSource = option.value"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+          <label class="block">
+            <span class="sr-only">Sort products</span>
+            <select
+              v-model="sortMode"
+              class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="newest">Newest first</option>
+              <option value="name">Name A-Z</option>
+              <option value="collection">Collection</option>
+              <option value="price-desc">Price high-low</option>
+              <option value="price-asc">Price low-high</option>
+            </select>
+          </label>
+        </div>
+
         <div
-          class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider"
+          class="flex flex-col gap-3 lg:col-span-2 xl:flex-row xl:items-center xl:justify-between"
         >
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-primary-foreground transition hover:bg-primary/90"
-            @click="openAddDialog"
+          <div
+            class="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground"
           >
-            <Plus class="h-3.5 w-3.5" />
-            Add card
-          </button>
-          <span class="rounded-full bg-secondary px-3 py-1 text-muted-foreground">
-            Base {{ staticProducts.length }}
-          </span>
-          <span class="rounded-full bg-accent/10 px-3 py-1 text-accent">
-            Added {{ items.length }}
-          </span>
+            <SlidersHorizontal class="h-4 w-4 text-accent" />
+            <span> Showing {{ filteredProducts.length }} of {{ allProducts.length }} </span>
+            <button
+              v-if="hasActiveFilters"
+              type="button"
+              class="rounded-full bg-secondary px-3 py-1 text-foreground transition hover:bg-muted"
+              @click="clearFilters"
+            >
+              Clear filters
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="inline-flex rounded-full border border-border bg-background p-1">
+              <button
+                type="button"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-full transition"
+                :class="
+                  viewMode === 'grid'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                "
+                aria-label="Grid view"
+                title="Grid view"
+                @click="viewMode = 'grid'"
+              >
+                <LayoutGrid class="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-full transition"
+                :class="
+                  viewMode === 'list'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                "
+                aria-label="List view"
+                title="List view"
+                @click="viewMode = 'list'"
+              >
+                <List class="h-4 w-4" />
+              </button>
+            </div>
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-semibold transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="loading"
+              @click="load"
+            >
+              <Loader2 v-if="loading" class="h-4 w-4 animate-spin" />
+              <RefreshCw v-else class="h-4 w-4" />
+              Refresh
+            </button>
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-semibold transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="filteredProducts.length === 0"
+              @click="exportCatalogCsv"
+            >
+              <Download class="h-4 w-4" />
+              Export
+            </button>
+          </div>
         </div>
       </div>
 
-      <div
-        class="mb-5 grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-[1fr_220px]"
-      >
-        <label class="relative block">
-          <span class="sr-only">Search products</span>
-          <Search
-            class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <input
-            v-model.trim="search"
-            type="search"
-            placeholder="Search product, collection, or tag"
-            class="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm"
-          />
-        </label>
-        <label class="block">
-          <span class="sr-only">Filter collection</span>
-          <select
-            v-model="selectedCollection"
-            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="all">All collections</option>
-            <option
-              v-for="collection in collectionList"
-              :key="collection.slug"
-              :value="collection.slug"
-            >
-              {{ collection.name }}
-            </option>
-          </select>
-        </label>
+      <div v-if="hasActiveFilters" class="mb-4 flex flex-wrap gap-2 text-xs font-semibold">
+        <span v-if="search" class="rounded-full bg-secondary px-3 py-1 text-muted-foreground">
+          Search: {{ search }}
+        </span>
+        <span
+          v-if="selectedCollection !== 'all'"
+          class="rounded-full bg-secondary px-3 py-1 text-muted-foreground"
+        >
+          {{ collectionName(selectedCollection) }}
+        </span>
+        <span
+          v-if="selectedSource !== 'all'"
+          class="rounded-full bg-secondary px-3 py-1 text-muted-foreground"
+        >
+          {{ sourceLabel(selectedSource) }}
+        </span>
       </div>
 
       <div v-if="loading" class="flex justify-center py-6">
@@ -249,21 +376,29 @@
         class="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground"
       >
         No products match this filter.
+        <button
+          v-if="hasActiveFilters"
+          type="button"
+          class="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+          @click="clearFilters"
+        >
+          Clear filters
+        </button>
       </div>
-      <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div v-else-if="viewMode === 'grid'" class="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
         <article
           v-for="product in filteredProducts"
           :key="product.id"
           role="button"
           tabindex="0"
-          class="cursor-pointer rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          class="min-w-0 cursor-pointer rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           :aria-label="`Open details for ${product.name}`"
           @click="openProduct(product)"
           @keydown.enter.prevent="openProduct(product)"
           @keydown.space.prevent="openProduct(product)"
         >
           <div
-            class="mb-3 flex h-28 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br"
+            class="mb-3 flex h-36 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br sm:h-28"
             :class="product.preview ? 'from-stone-100 to-cream' : product.tint"
           >
             <img
@@ -291,7 +426,10 @@
                 </span>
               </div>
               <h3 class="font-display truncate text-lg font-bold">{{ product.name }}</h3>
-              <p class="text-xs text-muted-foreground">
+              <p class="mt-1 text-sm font-semibold text-primary">
+                {{ priceLabel(product.price) }}
+              </p>
+              <p class="break-all text-xs text-muted-foreground">
                 {{ product.collection_name }} &middot; {{ product.slug }}
               </p>
               <div class="mt-2 flex flex-wrap gap-1.5">
@@ -313,7 +451,7 @@
             <button
               v-if="product.deletable"
               type="button"
-              class="shrink-0 text-muted-foreground transition hover:text-destructive"
+              class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-destructive"
               :aria-label="`Delete ${product.name}`"
               @click.stop="remove(product)"
             >
@@ -330,96 +468,99 @@
           </RouterLink>
         </article>
       </div>
-    </section>
-
-    <h2 class="font-display mb-3 text-xl font-bold">Custom Mongo products</h2>
-    <div v-if="loading" class="flex justify-center py-6">
-      <Loader2 class="h-5 w-5 animate-spin text-accent" />
-    </div>
-    <div
-      v-else-if="items.length === 0"
-      class="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground"
-    >
-      No custom cards yet.
-      <button
-        type="button"
-        class="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-        @click="openAddDialog"
-      >
-        <Plus class="h-4 w-4" />
-        Add card
-      </button>
-    </div>
-    <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div
-        v-for="item in items"
-        :key="item.id"
-        role="button"
-        tabindex="0"
-        class="cursor-pointer rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        :aria-label="`Open details for ${item.name}`"
-        @click="openCustomItem(item)"
-        @keydown.enter.prevent="openCustomItem(item)"
-        @keydown.space.prevent="openCustomItem(item)"
-      >
-        <div
-          class="mb-3 flex h-24 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br"
-          :class="item.image_data_url ? '' : item.tint"
+      <div v-else class="overflow-hidden rounded-2xl border border-border bg-card">
+        <article
+          v-for="product in filteredProducts"
+          :key="`${product.id}-row`"
+          role="button"
+          tabindex="0"
+          class="grid cursor-pointer gap-4 border-b border-border p-4 text-left transition last:border-b-0 hover:bg-secondary/60 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset sm:grid-cols-[112px_minmax(0,1fr)_auto]"
+          :aria-label="`Open details for ${product.name}`"
+          @click="openProduct(product)"
+          @keydown.enter.prevent="openProduct(product)"
+          @keydown.space.prevent="openProduct(product)"
         >
-          <img
-            v-if="item.image_data_url"
-            :src="item.image_data_url"
-            :alt="item.image_alt || item.name"
-            class="h-full w-full object-cover"
-          />
-        </div>
-        <div class="flex items-start justify-between gap-2">
-          <div>
-            <h3 class="font-display font-bold">{{ item.name }}</h3>
-            <p class="text-xs text-muted-foreground">
-              {{ collections[item.collection_slug]?.name || item.collection_slug }} &middot;
-              {{ item.tag }}
-            </p>
-            <div class="mt-2 flex flex-wrap gap-1.5">
+          <div
+            class="flex h-28 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br sm:h-20"
+            :class="product.preview ? 'from-stone-100 to-cream' : product.tint"
+          >
+            <img
+              v-if="product.preview"
+              :src="product.preview.src"
+              :alt="product.preview.alt"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+            <CategoryCardArt v-else :slug="product.collection_slug" />
+          </div>
+
+          <div class="min-w-0">
+            <div class="mb-2 flex flex-wrap items-center gap-2">
               <span
-                v-for="name in variantNamesFor(item.variant_slugs).slice(0, 3)"
-                :key="`${item.id}-${name}`"
-                class="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-muted-foreground"
+                class="rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-widest"
+                :class="product.sourceClass"
               >
-                {{ name }}
+                {{ product.source }}
               </span>
               <span
-                v-if="variantNamesFor(item.variant_slugs).length > 3"
-                class="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-muted-foreground"
+                class="rounded-full bg-secondary px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
               >
-                +{{ variantNamesFor(item.variant_slugs).length - 3 }}
+                {{ product.tag }}
+              </span>
+              <span
+                class="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary"
+              >
+                {{ priceLabel(product.price) }}
               </span>
             </div>
+            <h3 class="font-display truncate text-lg font-bold">{{ product.name }}</h3>
+            <p class="break-all text-xs text-muted-foreground">
+              {{ product.collection_name }} &middot; {{ product.slug }}
+            </p>
+            <p class="mt-1 text-xs text-muted-foreground">
+              {{ variantNamesFor(product.variant_slugs).length }} subcategor{{
+                variantNamesFor(product.variant_slugs).length === 1 ? "y" : "ies"
+              }}
+              &middot; {{ variantSummary(product) }}
+            </p>
           </div>
-          <button
-            type="button"
-            class="text-muted-foreground transition hover:text-destructive"
-            @click.stop="remove(item)"
-          >
-            <Trash2 class="h-4 w-4" />
-          </button>
-        </div>
+
+          <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+            <RouterLink
+              :to="product.path"
+              class="inline-flex min-h-9 items-center gap-2 rounded-full border border-border px-3 text-sm font-semibold text-accent transition hover:bg-background"
+              @click.stop
+            >
+              <Eye class="h-4 w-4" />
+              View
+            </RouterLink>
+            <button
+              v-if="product.deletable"
+              type="button"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-background hover:text-destructive"
+              :aria-label="`Delete ${product.name}`"
+              @click.stop="remove(product)"
+            >
+              <Trash2 class="h-4 w-4" />
+            </button>
+          </div>
+        </article>
       </div>
-    </div>
+    </section>
 
     <Teleport to="body">
       <div
         v-if="selectedProduct"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-end justify-center overflow-hidden bg-black/50 px-0 pt-6 sm:items-center sm:p-4"
         @click.self="closeProductDialog"
       >
         <section
-          class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl"
+          class="flex max-h-[calc(100dvh_-_0.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-t-2xl border border-border bg-background shadow-2xl sm:max-h-[min(860px,calc(100dvh_-_2rem))] sm:rounded-2xl"
           aria-modal="true"
           role="dialog"
         >
           <div
-            class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-background/95 px-5 py-4 backdrop-blur"
+            class="flex shrink-0 items-start justify-between gap-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-5 sm:py-4"
           >
             <div class="min-w-0">
               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
@@ -431,7 +572,7 @@
             </div>
             <button
               type="button"
-              class="rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+              class="shrink-0 rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               aria-label="Close product details"
               @click="closeProductDialog"
             >
@@ -439,8 +580,10 @@
             </button>
           </div>
 
-          <div class="grid gap-6 p-5 lg:grid-cols-[260px_1fr]">
-            <div>
+          <div
+            class="grid min-h-0 gap-5 overflow-y-auto overscroll-contain p-4 sm:p-5 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-6"
+          >
+            <div class="min-w-0">
               <div
                 class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br"
                 :class="dialogPreview ? 'from-stone-100 to-cream' : dialogTint"
@@ -459,6 +602,9 @@
                 </span>
                 <span class="rounded-full bg-secondary px-3 py-1 text-muted-foreground">
                   {{ selectedProduct.tag }}
+                </span>
+                <span class="rounded-full bg-primary/10 px-3 py-1 text-primary">
+                  {{ priceLabel(selectedProduct.price) }}
                 </span>
               </div>
               <div class="mt-3 flex flex-wrap gap-1.5">
@@ -482,18 +628,18 @@
 
             <form
               v-if="selectedProduct.editable"
-              class="space-y-4"
+              class="min-w-0 space-y-4"
               @submit.prevent="saveProductDetails"
             >
-              <div class="grid gap-4 sm:grid-cols-2">
-                <div class="space-y-1.5">
+              <div class="grid gap-4 md:grid-cols-2">
+                <div class="min-w-0 space-y-1.5">
                   <label for="detail_collection_slug" class="text-sm font-medium">Collection</label>
                   <select
                     id="detail_collection_slug"
                     v-model="detailForm.collection_slug"
                     required
                     :disabled="selectedProduct.base"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-70"
+                    class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     <option
                       v-for="collection in collectionList"
@@ -507,33 +653,45 @@
                     Base cards stay in their original collection.
                   </p>
                 </div>
-                <div class="space-y-1.5">
+                <div class="min-w-0 space-y-1.5">
                   <label for="detail_name" class="text-sm font-medium">Card name</label>
                   <input
                     id="detail_name"
                     v-model.trim="detailForm.name"
                     required
                     maxlength="100"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
-                <div class="space-y-1.5">
+                <div class="min-w-0 space-y-1.5">
                   <label for="detail_tag" class="text-sm font-medium">Tag</label>
                   <input
                     id="detail_tag"
                     v-model.trim="detailForm.tag"
                     required
                     maxlength="40"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
-                <div class="space-y-1.5">
+                <div class="min-w-0 space-y-1.5">
+                  <label for="detail_price" class="text-sm font-medium">Price (INR)</label>
+                  <input
+                    id="detail_price"
+                    v-model.trim="detailForm.price"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    required
+                    class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <div class="min-w-0 space-y-1.5 md:col-span-2">
                   <label for="detail_tint" class="text-sm font-medium">Tailwind tint</label>
                   <input
                     id="detail_tint"
                     v-model.trim="detailForm.tint"
                     maxlength="120"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
               </div>
@@ -548,7 +706,7 @@
                   required
                   maxlength="240"
                   placeholder="Classic, Modern, Premium"
-                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
                 <p class="text-xs text-muted-foreground">
                   Type each subcategory name separated by commas. These are the design options
@@ -563,7 +721,7 @@
                   ref="detailImageInput"
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
-                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   @change="setDetailImage"
                 />
                 <p class="text-xs text-muted-foreground">
@@ -580,27 +738,29 @@
                 </div>
               </div>
 
-              <div class="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+              <div
+                class="sticky bottom-0 z-10 flex flex-col-reverse gap-3 border-t border-border bg-background pt-4 sm:flex-row sm:items-center sm:justify-end"
+              >
+                <button
+                  type="button"
+                  class="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary sm:w-auto"
+                  @click="closeProductDialog"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   :disabled="editBusy"
-                  class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+                  class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60 sm:w-auto"
                 >
                   <Loader2 v-if="editBusy" class="h-4 w-4 animate-spin" />
                   <Save v-else class="h-4 w-4" />
                   Save details
                 </button>
-                <button
-                  type="button"
-                  class="rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary"
-                  @click="closeProductDialog"
-                >
-                  Cancel
-                </button>
               </div>
             </form>
 
-            <div v-else class="space-y-4">
+            <div v-else class="min-w-0 space-y-4">
               <dl class="grid gap-3 text-sm">
                 <div class="rounded-lg border border-border p-3">
                   <dt class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -612,7 +772,13 @@
                   <dt class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Slug
                   </dt>
-                  <dd class="mt-1 font-mono text-xs">{{ selectedProduct.slug }}</dd>
+                  <dd class="mt-1 break-all font-mono text-xs">{{ selectedProduct.slug }}</dd>
+                </div>
+                <div class="rounded-lg border border-border p-3">
+                  <dt class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Price
+                  </dt>
+                  <dd class="mt-1 font-medium">{{ priceLabel(selectedProduct.price) }}</dd>
                 </div>
                 <div class="rounded-lg border border-border p-3">
                   <dt class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -635,7 +801,22 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
-import { Eye, Loader2, Plus, Save, Search, Trash2, X } from "@lucide/vue";
+import {
+  Download,
+  Eye,
+  LayoutGrid,
+  List,
+  Loader2,
+  PackageCheck,
+  Plus,
+  RefreshCw,
+  Save,
+  Search,
+  SlidersHorizontal,
+  Tags,
+  Trash2,
+  X,
+} from "@lucide/vue";
 
 import CategoryCardArt from "@/components/CategoryCardArt.vue";
 import { useToast } from "@/composables/useToast";
@@ -645,6 +826,7 @@ import {
   designVariantName,
   normalizeDesignVariantSlugs,
 } from "@/lib/collections-data";
+import { formatPrice, parsePriceInput } from "@/lib/pricing";
 import {
   createCustomModel,
   deleteCustomModel,
@@ -667,14 +849,23 @@ const imageInput = ref(null);
 const detailImageInput = ref(null);
 const search = ref("");
 const selectedCollection = ref("all");
+const selectedSource = ref("all");
+const sortMode = ref("newest");
+const viewMode = ref("grid");
 const selectedProduct = ref(null);
 const maxImageBytes = 5 * 1024 * 1024;
 const maxImageDataUrlLength = 900_000;
 const allowedImageTypes = ["image/png", "image/jpeg", "image/webp"];
+const sourceOptions = [
+  { value: "all", label: "All" },
+  { value: "base", label: "Base" },
+  { value: "added", label: "Added" },
+];
 const form = reactive({
   collection_slug: collectionList[0]?.slug || "",
   name: "",
   tag: "",
+  price: "",
   tint: "",
   image_data_url: "",
   subcategory_names: "",
@@ -683,6 +874,7 @@ const detailForm = reactive({
   collection_slug: "",
   name: "",
   tag: "",
+  price: "",
   tint: "",
   image_data_url: "",
   subcategory_names: "",
@@ -714,6 +906,7 @@ const staticProducts = computed(() =>
           slug: model.slug,
           name: override?.name || model.name,
           tag: override?.tag || model.tag,
+          price: override?.price || model.price || null,
           tint: override?.tint || model.tint,
           image_data_url: override?.image_data_url || "",
           variant_slugs: normalizeDesignVariantSlugs(
@@ -733,21 +926,73 @@ const staticProducts = computed(() =>
 );
 const customProducts = computed(() => items.value.map(toCustomProduct));
 const allProducts = computed(() => [...customProducts.value, ...staticProducts.value]);
+const collectionCoverage = computed(
+  () => new Set(allProducts.value.map((product) => product.collection_slug)).size,
+);
+const pricedProducts = computed(() =>
+  allProducts.value.filter(
+    (product) => Number.isFinite(Number(product.price)) && Number(product.price) > 0,
+  ),
+);
+const catalogStats = computed(() => [
+  {
+    label: "Visible",
+    value: filteredProducts.value.length,
+    note: `${allProducts.value.length} total products`,
+    icon: Eye,
+  },
+  {
+    label: "Added",
+    value: customProducts.value.length,
+    note: "Mongo products",
+    icon: Plus,
+  },
+  {
+    label: "Base",
+    value: staticProducts.value.length,
+    note: "Source catalog",
+    icon: PackageCheck,
+  },
+  {
+    label: "Priced",
+    value: pricedProducts.value.length,
+    note: `${collectionCoverage.value} collections active`,
+    icon: Tags,
+  },
+]);
 const filteredProducts = computed(() => {
   const term = search.value.trim().toLowerCase();
 
-  return allProducts.value.filter((product) => {
+  const matches = allProducts.value.filter((product) => {
     const matchesCollection =
       selectedCollection.value === "all" || product.collection_slug === selectedCollection.value;
+    const matchesSource =
+      selectedSource.value === "all" ||
+      (selectedSource.value === "base" && product.base) ||
+      (selectedSource.value === "added" && !product.base);
     const matchesSearch =
       !term ||
-      [product.name, product.collection_name, product.tag, product.slug, variantSummary(product)]
+      [
+        product.name,
+        product.collection_name,
+        product.tag,
+        product.slug,
+        product.source,
+        variantSummary(product),
+      ]
+        .concat(priceLabel(product.price, ""))
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(term));
 
-    return matchesCollection && matchesSearch;
+    return matchesCollection && matchesSource && matchesSearch;
   });
+
+  return [...matches].sort(compareProducts);
 });
+const hasActiveFilters = computed(
+  () =>
+    Boolean(search.value) || selectedCollection.value !== "all" || selectedSource.value !== "all",
+);
 const dialogCollectionSlug = computed(() =>
   selectedProduct.value?.editable
     ? detailForm.collection_slug
@@ -792,6 +1037,52 @@ function toCustomProduct(item) {
   };
 }
 
+function collectionName(slug) {
+  return collections[slug]?.name || slug;
+}
+
+function sourceLabel(value) {
+  return sourceOptions.find((option) => option.value === value)?.label || value;
+}
+
+function clearFilters() {
+  search.value = "";
+  selectedCollection.value = "all";
+  selectedSource.value = "all";
+}
+
+function compareProducts(a, b) {
+  if (sortMode.value === "name") return a.name.localeCompare(b.name);
+  if (sortMode.value === "collection") {
+    return a.collection_name.localeCompare(b.collection_name) || a.name.localeCompare(b.name);
+  }
+  if (sortMode.value === "price-desc") {
+    return productPrice(b, -1) - productPrice(a, -1) || a.name.localeCompare(b.name);
+  }
+  if (sortMode.value === "price-asc") {
+    return (
+      productPrice(a, Number.MAX_SAFE_INTEGER) - productPrice(b, Number.MAX_SAFE_INTEGER) ||
+      a.name.localeCompare(b.name)
+    );
+  }
+
+  return (
+    productTimestamp(b) - productTimestamp(a) ||
+    Number(a.base) - Number(b.base) ||
+    a.name.localeCompare(b.name)
+  );
+}
+
+function productPrice(product, fallback) {
+  const price = Number(product.price);
+  return Number.isFinite(price) && price > 0 ? price : fallback;
+}
+
+function productTimestamp(product) {
+  const timestamp = Date.parse(product.updated_at || product.created_at || "");
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
 async function load() {
   loading.value = true;
   try {
@@ -811,9 +1102,54 @@ async function load() {
   }
 }
 
+function exportCatalogCsv() {
+  const header = [
+    "Name",
+    "Collection",
+    "Source",
+    "Tag",
+    "Price",
+    "Slug",
+    "Subcategories",
+    "Product URL",
+  ];
+  const rows = filteredProducts.value.map((product) => [
+    product.name,
+    product.collection_name,
+    product.source,
+    product.tag,
+    priceLabel(product.price, ""),
+    product.slug,
+    variantSummary(product),
+    `${window.location.origin}${product.path}`,
+  ]);
+  const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `nexique-catalog-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  toast.success("Catalog exported.");
+}
+
+function csvCell(value) {
+  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+}
+
 async function addModel() {
   if (!form.collection_slug || !form.name || !form.tag) {
     toast.error("All fields required");
+    return;
+  }
+
+  const price = parsePriceInput(form.price);
+  if (price == null) {
+    toast.error("Enter a valid price.");
     return;
   }
 
@@ -829,6 +1165,7 @@ async function addModel() {
       collection_slug: form.collection_slug,
       name: form.name,
       tag: form.tag,
+      price,
       tint: form.tint || "from-rose-200 to-amber-100",
       image_data_url: form.image_data_url,
       variant_slugs: variantSlugs,
@@ -858,6 +1195,7 @@ function closeAddDialog() {
 function resetAddForm() {
   form.name = "";
   form.tag = "";
+  form.price = "";
   form.tint = "";
   form.subcategory_names = "";
   clearImage();
@@ -979,15 +1317,11 @@ function openProduct(product) {
   detailForm.collection_slug = product.collection_slug;
   detailForm.name = product.name;
   detailForm.tag = product.tag;
+  detailForm.price = product.price || "";
   detailForm.tint = product.tint || "from-rose-200 to-amber-100";
   detailForm.image_data_url = product.image_data_url || "";
   detailForm.subcategory_names = variantNamesFor(product.variant_slugs).join(", ");
   if (detailImageInput.value) detailImageInput.value.value = "";
-}
-
-function openCustomItem(item) {
-  const product = customProducts.value.find((entry) => entry.id === item.id);
-  if (product) openProduct(product);
 }
 
 function closeProductDialog() {
@@ -1015,6 +1349,12 @@ async function saveProductDetails() {
     return;
   }
 
+  const price = parsePriceInput(detailForm.price);
+  if (price == null) {
+    toast.error("Enter a valid price.");
+    return;
+  }
+
   const variantSlugs = parseSubcategoryNames(detailForm.subcategory_names);
   if (variantSlugs.length === 0) {
     toast.error("Enter at least one subcategory name.");
@@ -1029,6 +1369,7 @@ async function saveProductDetails() {
         : detailForm.collection_slug,
       name: detailForm.name,
       tag: detailForm.tag,
+      price,
       tint: detailForm.tint || "from-rose-200 to-amber-100",
       image_data_url: detailForm.image_data_url,
       variant_slugs: variantSlugs,
@@ -1064,6 +1405,10 @@ function variantNamesFor(slugs) {
 
 function variantSummary(product) {
   return variantNamesFor(product.variant_slugs).join(", ");
+}
+
+function priceLabel(price, fallback = "Price not set") {
+  return formatPrice(price, fallback);
 }
 
 function parseSubcategoryNames(value) {
