@@ -16,6 +16,7 @@ import {
   validateModelOverride,
   validateModelOverrideDelete,
 } from "../../_lib/models.js";
+import { logAdminAction } from "../../_lib/logs.js";
 
 async function uniqueSlug(db, collectionSlug, baseSlug) {
   const rootSlug = baseSlug || "custom-card";
@@ -61,6 +62,9 @@ export default async function handler(req, res) {
           { $set: result.value, $setOnInsert: result.insert },
           { upsert: true },
         );
+        await logAdminAction(admin.email, "delete_model_override", {
+          source_model_id: result.value.source_model_id,
+        });
         return sendJson(res, 200, { ok: true });
       }
 
@@ -73,6 +77,10 @@ export default async function handler(req, res) {
         { upsert: true },
       );
       const model = await collection.findOne({ source_model_id: result.value.source_model_id });
+      await logAdminAction(admin.email, "update_model_override", {
+        source_model_id: result.value.source_model_id,
+        patch: result.value,
+      });
       return sendJson(res, 200, { data: modelOverrideResponse(model) });
     }
 
@@ -91,6 +99,11 @@ export default async function handler(req, res) {
     result.value.slug = await uniqueSlug(db, result.value.collection_slug, result.value.slug);
     const write = await db.collection("custom_card_models").insertOne(result.value);
     const model = await db.collection("custom_card_models").findOne({ _id: write.insertedId });
+    await logAdminAction(admin.email, "create_custom_model", {
+      id: String(model._id),
+      name: model.name,
+      collection_slug: model.collection_slug,
+    });
     return sendJson(res, 201, { data: modelResponse(model) });
   } catch (err) {
     return handleApiError(res, err);

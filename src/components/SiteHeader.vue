@@ -19,6 +19,24 @@
         >
           {{ item.label }}
         </RouterLink>
+
+        <RouterLink
+          v-if="customer"
+          to="/profile"
+          class="relative text-foreground/80 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-accent after:transition-all after:content-[''] hover:text-accent hover:after:w-full"
+          :class="{ 'text-accent': isActive('/profile') }"
+        >
+          Profile
+        </RouterLink>
+        <RouterLink
+          v-else
+          to="/login"
+          class="relative text-foreground/80 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-accent after:transition-all after:content-[''] hover:text-accent hover:after:w-full"
+          :class="{ 'text-accent': isActive('/login') }"
+        >
+          Sign In
+        </RouterLink>
+
         <RouterLink
           to="/collections"
           class="click-pop ripple rounded-full bg-primary px-5 py-2.5 text-[12px] font-medium uppercase tracking-[0.18em] text-primary-foreground transition-all hover:bg-accent"
@@ -64,6 +82,26 @@
           >
             {{ item.label }}
           </RouterLink>
+
+          <RouterLink
+            v-if="customer"
+            to="/profile"
+            class="rounded-md px-3 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80 transition hover:bg-secondary hover:text-accent"
+            :class="{ 'bg-accent/10 text-accent': isActive('/profile') }"
+            @click="closeMenu"
+          >
+            Profile
+          </RouterLink>
+          <RouterLink
+            v-else
+            to="/login"
+            class="rounded-md px-3 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80 transition hover:bg-secondary hover:text-accent"
+            :class="{ 'bg-accent/10 text-accent': isActive('/login') }"
+            @click="closeMenu"
+          >
+            Sign In
+          </RouterLink>
+
           <RouterLink
             to="/collections"
             class="click-pop ripple mt-1 inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-primary-foreground transition hover:bg-accent"
@@ -83,6 +121,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import BrandLockup from "@/components/BrandLockup.vue";
+import { onAuthState } from "@/lib/firebase";
 
 const props = defineProps({
   floating: {
@@ -94,6 +133,13 @@ const props = defineProps({
 const route = useRoute();
 const scrolled = ref(false);
 const mobileMenuOpen = ref(false);
+const customer = ref(null);
+
+onMounted(() => {
+  onAuthState((user) => {
+    customer.value = user;
+  });
+});
 
 const navItems = [
   { to: "/", label: "Home" },

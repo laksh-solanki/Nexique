@@ -18,6 +18,10 @@ export function unauthorized(res) {
   sendJson(res, 401, { error: "Admin sign in required." });
 }
 
+export function notFound(res, message) {
+  sendJson(res, 404, { error: message });
+}
+
 export function assertSameOrigin(req) {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return;
 

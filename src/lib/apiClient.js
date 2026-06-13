@@ -1,5 +1,8 @@
 export async function apiRequest(path, options = {}) {
-  const headers = options.body ? { "Content-Type": "application/json" } : {};
+  const headers = {
+    ...options.headers,
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+  };
   const response = await fetch(path, {
     method: options.method || "GET",
     credentials: "include",

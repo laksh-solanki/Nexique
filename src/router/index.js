@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import { getCurrentAdminUser } from "@/lib/auth";
+import { onAuthState } from "@/lib/firebase";
 
 const routes = [
   {
@@ -42,6 +43,24 @@ const routes = [
     },
   },
   {
+    path: "/login",
+    name: "login",
+    component: () => import("@/pages/CustomerLogin.vue"),
+    meta: {
+      title: "Sign In - Nexique",
+      description: "Sign in to order premium cards and track status.",
+    },
+  },
+  {
+    path: "/profile",
+    name: "profile",
+    component: () => import("@/pages/CustomerProfile.vue"),
+    meta: {
+      title: "My Profile - Nexique",
+      requiresCustomerAuth: true,
+    },
+  },
+  {
     path: "/nexique-control",
     name: "auth",
     component: () => import("@/pages/Auth.vue"),
@@ -79,6 +98,18 @@ const routes = [
         component: () => import("@/pages/admin/AdminModels.vue"),
         meta: { requiresAuth: true, title: "Catalog - Nexique Admin" },
       },
+      {
+        path: "developer",
+        name: "admin-developer",
+        component: () => import("@/pages/admin/AdminDeveloper.vue"),
+        meta: { requiresAuth: true, title: "Developer Tools - Nexique Admin" },
+      },
+      {
+        path: "customers",
+        name: "admin-customers",
+        component: () => import("@/pages/admin/AdminCustomers.vue"),
+        meta: { requiresAuth: true, title: "Customers - Nexique Admin" },
+      },
     ],
   },
   {
@@ -103,10 +134,31 @@ function adminRedirectTarget(redirect) {
   return "/admin/dashboard";
 }
 
+function getFirebaseUser() {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthState((user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
 router.beforeEach(async (to) => {
+  if (to.meta.requiresCustomerAuth) {
+    const customerUser = await getFirebaseUser();
+    if (!customerUser) {
+      return { name: "login", query: { redirect: to.fullPath } };
+    }
+  }
+
   if (to.name === "auth") {
     const user = await getCurrentAdminUser();
     if (user) return adminRedirectTarget(to.query.redirect);
+  }
+
+  if (to.name === "login") {
+    const customerUser = await getFirebaseUser();
+    if (customerUser) return "/profile";
   }
 
   if (!to.meta.requiresAuth) return true;

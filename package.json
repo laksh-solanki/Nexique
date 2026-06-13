@@ -31,6 +31,7 @@
     "@lucide/vue": "^1.17.0",
     "@tailwindcss/vite": "^4.3.0",
     "bcryptjs": "^3.0.3",
+    "firebase": "^12.14.0",
     "mongodb": "^7.2.0",
     "tailwindcss": "^4.3.0",
     "tw-animate-css": "^1.3.4",

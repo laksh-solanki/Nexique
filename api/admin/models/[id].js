@@ -10,6 +10,7 @@ import {
 import { requireAdmin } from "../../_lib/admin.js";
 import { getDb, toObjectId } from "../../_lib/mongodb.js";
 import { modelResponse, validateCustomModelPatch } from "../../_lib/models.js";
+import { logAdminAction } from "../../_lib/logs.js";
 
 function routeId(req) {
   const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
@@ -50,7 +51,13 @@ export default async function handler(req, res) {
     const _id = toObjectId(routeId(req));
 
     if (req.method === "DELETE") {
+      const current = await db.collection("custom_card_models").findOne({ _id });
       await db.collection("custom_card_models").deleteOne({ _id });
+      await logAdminAction(admin.email, "delete_custom_model", {
+        id: routeId(req),
+        name: current?.name,
+        collection_slug: current?.collection_slug,
+      });
       return sendJson(res, 200, { ok: true });
     }
 
@@ -63,6 +70,13 @@ export default async function handler(req, res) {
     result.value.slug = await uniqueSlug(db, result.value.collection_slug, result.value.slug, _id);
     await db.collection("custom_card_models").updateOne({ _id }, { $set: result.value });
     const model = await db.collection("custom_card_models").findOne({ _id });
+
+    await logAdminAction(admin.email, "update_custom_model", {
+      id: routeId(req),
+      name: model.name,
+      patch: result.value,
+    });
+
     return sendJson(res, 200, { data: modelResponse(model) });
   } catch (err) {
     return handleApiError(res, err);

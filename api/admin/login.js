@@ -16,6 +16,7 @@ import {
   recordLoginFailure,
 } from "../_lib/rateLimit.js";
 import { setAdminSession } from "../_lib/session.js";
+import { logAdminAction } from "../_lib/logs.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
@@ -43,6 +44,12 @@ export default async function handler(req, res) {
 
     await clearLoginFailures(db, loginKey);
     setAdminSession(res, admin);
+
+    // Log admin login action
+    await logAdminAction(admin.email, "login", {
+      ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress || "local",
+    });
+
     return sendJson(res, 200, { admin: publicAdmin(admin) });
   } catch (err) {
     return handleApiError(res, err);

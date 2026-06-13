@@ -106,3 +106,57 @@ export async function deleteCustomModel(id) {
 export async function getAdminHealth() {
   return apiRequest("/api/admin/health");
 }
+
+export async function bulkUpdateOrders(ids, patch) {
+  const response = await apiRequest("/api/admin/orders/bulk", {
+    method: "PATCH",
+    body: { ids, patch },
+  });
+  return response;
+}
+
+export async function bulkDeleteOrders(ids) {
+  const response = await apiRequest("/api/admin/orders/bulk", {
+    method: "DELETE",
+    body: { ids },
+  });
+  return response;
+}
+
+export async function getDevStats() {
+  return apiRequest("/api/admin/dev-stats");
+}
+
+export async function getAdminLogs(limit = 50) {
+  return apiRequest(`/api/admin/logs?limit=${limit}`);
+}
+
+export async function runAdminSeeder(action) {
+  return apiRequest("/api/admin/seed", {
+    method: "POST",
+    body: { action },
+  });
+}
+
+export async function getCustomerOrders(token) {
+  return apiRequest("/api/customer/orders", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function cancelCustomerOrder(orderId, token) {
+  return apiRequest("/api/customer/orders", {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: { id: orderId, status: "cancelled" },
+  });
+}
+
+export async function getAdminCustomers() {
+  const response = await apiRequest("/api/admin/customers");
+  return response.data || [];
+}

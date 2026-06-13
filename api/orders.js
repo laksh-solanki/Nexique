@@ -19,6 +19,11 @@ export default async function handler(req, res) {
     const result = validatePublicOrder(payload);
     if (result.error) return badRequest(res, result.error);
 
+    // Track authenticated customer UID if available
+    if (payload.customer_uid) {
+      result.value.customer_uid = String(payload.customer_uid).trim().slice(0, 128);
+    }
+
     const db = await getDb();
     await consumeOrderLimit(db, rateLimitKey("public-order", req));
     const write = await db.collection("orders").insertOne(result.value);

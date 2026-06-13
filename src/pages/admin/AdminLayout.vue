@@ -25,11 +25,25 @@
             <Inbox class="h-4 w-4" /> Orders
           </RouterLink>
           <RouterLink
+            to="/admin/customers"
+            class="inline-flex items-center gap-1.5 transition hover:text-accent"
+            active-class="font-semibold text-accent"
+          >
+            <Users class="h-4 w-4" /> Customers
+          </RouterLink>
+          <RouterLink
             to="/admin/models"
             class="inline-flex items-center gap-1.5 transition hover:text-accent"
             active-class="font-semibold text-accent"
           >
             <Plus class="h-4 w-4" /> Catalog
+          </RouterLink>
+          <RouterLink
+            to="/admin/developer"
+            class="inline-flex items-center gap-1.5 transition hover:text-accent"
+            active-class="font-semibold text-accent"
+          >
+            <Terminal class="h-4 w-4" /> Dev Tools
           </RouterLink>
           <span
             v-if="admin"
@@ -58,7 +72,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { Inbox, LayoutDashboard, LogOut, Plus } from "@lucide/vue";
+import { Inbox, LayoutDashboard, LogOut, Plus, Terminal, Users } from "@lucide/vue";
 
 import { useToast } from "@/composables/useToast";
 import BrandLockup from "@/components/BrandLockup.vue";

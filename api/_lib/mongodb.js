@@ -46,6 +46,8 @@ export async function ensureIndexes(db) {
     db
       .collection("public_order_attempts")
       .createIndex({ updated_at: 1 }, { expireAfterSeconds: 60 * 60 * 24 }),
+    db.collection("admin_logs").createIndex({ created_at: -1 }),
+    db.collection("admin_logs").createIndex({ admin_email: 1 }),
   ]);
 }
 
