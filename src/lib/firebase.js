@@ -80,6 +80,16 @@ export function getCurrentFirebaseUser() {
   return isMock || !auth ? mockAuth.currentUser : auth.currentUser;
 }
 
+export async function updateFirebaseProfile(displayName) {
+  if (isMock || !auth) {
+    await mockAuth.updateProfile(mockAuth.currentUser, { displayName });
+    return;
+  }
+  if (auth.currentUser) {
+    await fbUpdateProfile(auth.currentUser, { displayName });
+  }
+}
+
 function createMockAuth() {
   const listeners = [];
   let currentUser = null;

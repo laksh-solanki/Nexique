@@ -2,6 +2,7 @@ import healthHandler from "./_health.js";
 import ordersHandler from "./_orders.js";
 import catalogModelsHandler from "./_catalog/models.js";
 import customerOrdersHandler from "./_customer/orders.js";
+import customerProfileHandler from "./_customer/profile.js";
 import adminCustomersHandler from "./_admin/customers.js";
 import adminDevStatsHandler from "./_admin/dev-stats.js";
 import adminHealthHandler from "./_admin/health.js";
@@ -42,6 +43,9 @@ export default async function handler(req, res) {
   }
   if (pathname === "/api/customer/orders") {
     return customerOrdersHandler(req, res);
+  }
+  if (pathname === "/api/customer/profile") {
+    return customerProfileHandler(req, res);
   }
   if (pathname === "/api/admin/customers") {
     return adminCustomersHandler(req, res);

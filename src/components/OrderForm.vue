@@ -129,9 +129,9 @@
 import { reactive, ref, onMounted } from "vue";
 import { Loader2, Mail, Lock } from "@lucide/vue";
 
-import { onAuthState } from "@/lib/firebase";
+import { onAuthState, getFirebaseToken } from "@/lib/firebase";
 import { useToast } from "@/composables/useToast";
-import { createOrder } from "@/lib/store";
+import { createOrder, getCustomerProfile } from "@/lib/store";
 
 const props = defineProps({
   collectionSlug: { type: String, required: true },
@@ -156,14 +156,27 @@ const form = reactive({
 });
 
 onMounted(() => {
-  onAuthState((user) => {
+  onAuthState(async (user) => {
     customer.value = user;
     if (user) {
       form.customer_email = user.email || "";
       form.customer_name = user.displayName || user.email.split("@")[0].toUpperCase() || "";
+      
+      try {
+        const token = await getFirebaseToken();
+        if (token) {
+          const profile = await getCustomerProfile(token);
+          if (profile && profile.phone) {
+            form.customer_phone = profile.phone;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to retrieve profile configuration for order form:", err);
+      }
     } else {
       form.customer_email = "";
       form.customer_name = "";
+      form.customer_phone = "";
     }
   });
 });

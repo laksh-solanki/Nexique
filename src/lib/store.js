@@ -160,3 +160,23 @@ export async function getAdminCustomers() {
   const response = await apiRequest("/api/admin/customers");
   return response.data || [];
 }
+
+export async function getCustomerProfile(token) {
+  const response = await apiRequest("/api/customer/profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+export async function updateCustomerProfile(payload, token) {
+  const response = await apiRequest("/api/customer/profile", {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: payload,
+  });
+  return response.data;
+}
