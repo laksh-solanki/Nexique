@@ -47,6 +47,33 @@
         </div>
       </section>
 
+      <section class="grid gap-4 lg:grid-cols-4">
+        <RouterLink
+          v-for="item in commandItems"
+          :key="item.title"
+          :to="item.to"
+          class="group rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-card"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-full bg-accent/10 text-accent"
+            >
+              <component :is="item.icon" class="h-5 w-5" />
+            </div>
+            <ArrowUpRight
+              class="h-4 w-4 text-muted-foreground transition group-hover:text-accent"
+            />
+          </div>
+          <h2 class="font-display mt-5 text-2xl font-bold text-primary">{{ item.title }}</h2>
+          <p class="mt-2 min-h-12 text-sm leading-relaxed text-muted-foreground">
+            {{ item.body }}
+          </p>
+          <p class="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            {{ item.meta }}
+          </p>
+        </RouterLink>
+      </section>
+
       <section class="rounded-2xl border border-border bg-card p-5">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -444,6 +471,7 @@ import {
   RefreshCw,
   ShieldCheck,
   TrendingUp,
+  Users,
 } from "@lucide/vue";
 
 import { useToast } from "@/composables/useToast";
@@ -462,6 +490,12 @@ const health = ref(null);
 const latestOrders = computed(() => orders.value.slice(0, 5));
 const latestModels = computed(() => models.value.slice(0, 4));
 const activeStatuses = new Set(["contacted", "proofing", "in_production"]);
+const newRequestCount = computed(
+  () => orders.value.filter((order) => order.status === "new").length,
+);
+const proofingCount = computed(
+  () => orders.value.filter((order) => order.status === "proofing").length,
+);
 const healthCounts = computed(() => [
   { label: "Admins", value: health.value?.counts?.admins ?? "-" },
   { label: "Orders", value: health.value?.counts?.orders ?? orders.value.length },
@@ -492,6 +526,46 @@ const dashboardStats = computed(() => [
     value: orders.value.filter((order) => isUrgentOrder(order)).length,
     note: "Need close follow-up",
     icon: CalendarClock,
+  },
+]);
+
+const uniqueCustomerCount = computed(() => {
+  const identities = orders.value
+    .map((order) => order.customer_email || order.customer_phone || order.customer_name)
+    .filter(Boolean);
+  return new Set(identities).size;
+});
+
+const commandItems = computed(() => [
+  {
+    to: "/admin/orders",
+    title: "New intake",
+    body: "Open fresh customer requests, confirm contact details, and set the first workflow status.",
+    meta: `${newRequestCount.value} new request${newRequestCount.value === 1 ? "" : "s"}`,
+    icon: Inbox,
+  },
+  {
+    to: "/admin/orders",
+    title: "Proof queue",
+    body: "Review wording, spelling, quantities, and deadlines before an order moves to production.",
+    meta: `${proofingCount.value} proofing`,
+    icon: FileCheck2,
+  },
+  {
+    to: "/admin/customers",
+    title: "Customer desk",
+    body: "Check repeat customers, order history, phone numbers, and saved profile details.",
+    meta: `${uniqueCustomerCount.value} customer record${
+      uniqueCustomerCount.value === 1 ? "" : "s"
+    }`,
+    icon: Users,
+  },
+  {
+    to: "/admin/models",
+    title: "Catalog polish",
+    body: "Add or refine premium, seasonal, and custom cards with clean names, pricing, and tags.",
+    meta: `${models.value.length} custom card${models.value.length === 1 ? "" : "s"}`,
+    icon: Palette,
   },
 ]);
 

@@ -337,7 +337,44 @@
       </div>
     </section>
 
-    <section id="faq" class="bg-secondary px-4 py-16 sm:px-6 sm:py-24">
+    <section class="bg-secondary px-4 py-16 sm:px-6 sm:py-24">
+      <div class="mx-auto max-w-7xl">
+        <div
+          class="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6"
+        >
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+              &mdash; Service Standards
+            </p>
+            <h2
+              class="font-display mt-3 text-3xl font-medium tracking-tight text-primary sm:text-4xl md:text-5xl"
+            >
+              Professional handling from brief to handoff.
+            </h2>
+          </div>
+          <p class="max-w-md text-sm leading-relaxed text-muted-foreground">
+            Every order is managed with clear proofing, practical deadlines, and production notes so
+            customers know what is confirmed before print.
+          </p>
+        </div>
+
+        <div
+          class="grid gap-px overflow-hidden rounded-sm border border-foreground/10 bg-foreground/10 md:grid-cols-2 lg:grid-cols-4"
+        >
+          <div v-for="item in serviceStandards" :key="item.title" class="bg-card p-7">
+            <div
+              class="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-accent/10 text-accent"
+            >
+              <component :is="item.icon" class="h-5 w-5" />
+            </div>
+            <h3 class="font-display text-2xl text-primary">{{ item.title }}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{{ item.body }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="bg-background px-4 py-16 sm:px-6 sm:py-24">
       <div class="mx-auto max-w-7xl">
         <div
           class="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6"
@@ -576,6 +613,29 @@ const studioConfirms = [
   "Design variant, wording, print-ready proof, and correction window.",
   "Paper stock, finish, quantity, timeline, and final quote before production.",
   "Pickup or delivery handoff details after the approved proof is ready.",
+];
+
+const serviceStandards = [
+  {
+    icon: FileCheck2,
+    title: "Proof-first approval",
+    body: "Printing starts only after names, wording, layout, finish, quantity, and quote are approved.",
+  },
+  {
+    icon: Briefcase,
+    title: "Bulk-ready quotes",
+    body: "Business cards, invites, gift cards, and event cards are priced with quantity and finish clarity.",
+  },
+  {
+    icon: Layers,
+    title: "Finish control",
+    body: "Paper stock, envelopes, colour direction, and extras are tracked before production begins.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Handoff clarity",
+    body: "Pickup, local handoff, or delivery details stay visible until the final order is complete.",
+  },
 ];
 
 const faqs = [

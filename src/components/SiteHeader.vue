@@ -8,39 +8,33 @@
       </RouterLink>
 
       <div
-        class="hidden items-center gap-8 text-[13px] font-medium uppercase tracking-[0.18em] md:flex"
+        class="hidden items-center gap-5 text-[12px] font-medium uppercase tracking-[0.16em] md:flex lg:gap-7 lg:text-[13px] lg:tracking-[0.18em]"
       >
         <RouterLink
           v-for="item in navItems"
-          :key="item.to"
+          :key="item.label"
           :to="item.to"
           class="relative text-foreground/80 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-accent after:transition-all after:content-[''] hover:text-accent hover:after:w-full"
-          :class="{ 'text-accent': isActive(item.to) }"
+          :class="{ 'text-accent': isActiveNav(item) }"
         >
           {{ item.label }}
         </RouterLink>
 
         <RouterLink
-          v-if="customer"
-          to="/profile"
-          class="relative text-foreground/80 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-accent after:transition-all after:content-[''] hover:text-accent hover:after:w-full"
-          :class="{ 'text-accent': isActive('/profile') }"
+          :to="accountPath"
+          class="click-pop inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/85 text-primary shadow-sm transition hover:border-accent/50 hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          :class="{ 'border-accent/50 text-accent': isActivePath(accountPath) }"
+          :aria-label="accountLabel"
+          :title="accountLabel"
         >
-          Profile
-        </RouterLink>
-        <RouterLink
-          v-else
-          to="/login"
-          class="relative text-foreground/80 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-accent after:transition-all after:content-[''] hover:text-accent hover:after:w-full"
-          :class="{ 'text-accent': isActive('/login') }"
-        >
-          Sign In
+          <component :is="accountIcon" class="h-4 w-4" />
         </RouterLink>
 
         <RouterLink
           to="/collections"
-          class="click-pop ripple rounded-full bg-primary px-5 py-2.5 text-[12px] font-medium uppercase tracking-[0.18em] text-primary-foreground transition-all hover:bg-accent"
+          class="click-pop ripple inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-[12px] font-medium uppercase tracking-[0.16em] text-primary-foreground transition-all hover:bg-accent lg:px-5 lg:tracking-[0.18em]"
         >
+          <ShoppingBag class="h-3.5 w-3.5" />
           Order Now
         </RouterLink>
       </div>
@@ -74,41 +68,36 @@
         <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 sm:px-6">
           <RouterLink
             v-for="item in navItems"
-            :key="item.to"
+            :key="item.label"
             :to="item.to"
             class="rounded-md px-3 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80 transition hover:bg-secondary hover:text-accent"
-            :class="{ 'bg-accent/10 text-accent': isActive(item.to) }"
+            :class="{ 'bg-accent/10 text-accent': isActiveNav(item) }"
             @click="closeMenu"
           >
             {{ item.label }}
           </RouterLink>
 
-          <RouterLink
-            v-if="customer"
-            to="/profile"
-            class="rounded-md px-3 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80 transition hover:bg-secondary hover:text-accent"
-            :class="{ 'bg-accent/10 text-accent': isActive('/profile') }"
-            @click="closeMenu"
-          >
-            Profile
-          </RouterLink>
-          <RouterLink
-            v-else
-            to="/login"
-            class="rounded-md px-3 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80 transition hover:bg-secondary hover:text-accent"
-            :class="{ 'bg-accent/10 text-accent': isActive('/login') }"
-            @click="closeMenu"
-          >
-            Sign In
-          </RouterLink>
+          <div class="mt-2 flex items-center gap-2 border-t border-border pt-3">
+            <RouterLink
+              :to="accountPath"
+              class="click-pop inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-card text-primary shadow-sm transition hover:border-accent/50 hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+              :class="{ 'border-accent/50 text-accent': isActivePath(accountPath) }"
+              :aria-label="accountLabel"
+              :title="accountLabel"
+              @click="closeMenu"
+            >
+              <component :is="accountIcon" class="h-4.5 w-4.5" />
+            </RouterLink>
 
-          <RouterLink
-            to="/collections"
-            class="click-pop ripple mt-1 inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-primary-foreground transition hover:bg-accent"
-            @click="closeMenu"
-          >
-            Order Now
-          </RouterLink>
+            <RouterLink
+              to="/collections"
+              class="click-pop ripple inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-primary-foreground transition hover:bg-accent"
+              @click="closeMenu"
+            >
+              <ShoppingBag class="h-4 w-4" />
+              Order Now
+            </RouterLink>
+          </div>
         </div>
       </div>
     </Transition>
@@ -116,7 +105,7 @@
 </template>
 
 <script setup>
-import { Menu, X } from "@lucide/vue";
+import { LogIn, Menu, ShoppingBag, UserRound, X } from "@lucide/vue";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -144,8 +133,14 @@ onMounted(() => {
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/collections", label: "Collections" },
-  { to: "/vision", label: "Our Vision" },
+  { to: { path: "/", hash: "#ordering" }, label: "Process", path: "/", hash: "#ordering" },
+  { to: { path: "/", hash: "#contact" }, label: "Contact", path: "/", hash: "#contact" },
+  { to: "/vision", label: "Vision" },
 ];
+
+const accountPath = computed(() => (customer.value ? "/profile" : "/login"));
+const accountLabel = computed(() => (customer.value ? "Open profile" : "Sign in"));
+const accountIcon = computed(() => (customer.value ? UserRound : LogIn));
 
 const headerClass = computed(() => {
   if (!props.floating) {
@@ -176,9 +171,14 @@ function handleResize() {
   if (window.innerWidth >= 768) closeMenu();
 }
 
-function isActive(path) {
+function isActivePath(path) {
   if (path === "/") return route.path === "/";
   return route.path === path || route.path.startsWith(`${path}/`);
+}
+
+function isActiveNav(item) {
+  if (item.hash) return route.path === item.path && route.hash === item.hash;
+  return isActivePath(item.to);
 }
 
 onMounted(() => {
