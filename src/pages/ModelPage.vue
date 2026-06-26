@@ -154,7 +154,7 @@ import OrderDialog from "@/components/OrderDialog.vue";
 import VariantPreviewDialog from "@/components/VariantPreviewDialog.vue";
 import VariantPreview from "@/components/VariantPreview.vue";
 import {
-  baseDesignVariantSlugs,
+  defaultModelVariantSlugs,
   getCollection,
   getDesignVariants,
   getModel,
@@ -194,7 +194,7 @@ const staticModel = computed(() => {
     tint: override?.tint || model.tint,
     variant_slugs: normalizeDesignVariantSlugs(
       override?.variant_slugs || model.variant_slugs,
-      baseDesignVariantSlugs,
+      defaultModelVariantSlugs(model),
     ),
     asset_name: model.name,
   };

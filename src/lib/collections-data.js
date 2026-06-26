@@ -213,6 +213,20 @@ const designVariantAliases = new Map(
   ]),
 );
 
+export function defaultModelVariantSlugs(model) {
+  if (!model) return baseDesignVariantSlugs;
+  if (model.variant_slugs && model.variant_slugs.length > 0) {
+    return model.variant_slugs;
+  }
+  if (model.tag) {
+    const slug = slugify(model.tag);
+    const alias = designVariantAliases.get(slug);
+    if (alias) return [alias];
+    return [slug];
+  }
+  return baseDesignVariantSlugs;
+}
+
 function titleCaseSlug(value) {
   return String(value || "")
     .split("-")

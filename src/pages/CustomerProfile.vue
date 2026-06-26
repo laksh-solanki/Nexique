@@ -30,7 +30,9 @@
             <h1 class="font-display text-2xl font-bold tracking-tight text-primary truncate">
               {{ user?.displayName || "Valued Client" }}
             </h1>
-            <span class="rounded-full bg-accent/15 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-accent select-none">
+            <span
+              class="rounded-full bg-accent/15 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-accent select-none"
+            >
               Client Member
             </span>
           </div>
@@ -52,19 +54,29 @@
     <!-- Metrics Cards Grid -->
     <section class="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-3">
       <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Total Requests</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+          Total Requests
+        </p>
         <p class="font-display mt-2 text-3xl font-bold text-primary">{{ orders.length }}</p>
         <p class="mt-1 text-[10px] text-muted-foreground">Bespoke card orders placed</p>
       </div>
       <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Active Work</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+          Active Work
+        </p>
         <p class="font-display mt-2 text-3xl font-bold text-accent">{{ activeOrdersCount }}</p>
         <p class="mt-1 text-[10px] text-muted-foreground">Designs currently in workflow</p>
       </div>
-      <div class="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-card p-5 shadow-sm flex flex-col justify-between">
+      <div
+        class="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-card p-5 shadow-sm flex flex-col justify-between"
+      >
         <div>
-          <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Account Status</p>
-          <p class="font-display mt-2 text-xl font-bold text-emerald-600 flex items-center gap-1.5 leading-none">
+          <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+            Account Status
+          </p>
+          <p
+            class="font-display mt-2 text-xl font-bold text-emerald-600 flex items-center gap-1.5 leading-none"
+          >
             <CheckCircle2 class="h-4.5 w-4.5" /> Active Verified
           </p>
         </div>
@@ -98,7 +110,9 @@
     <!-- Loader state during profile loading -->
     <div v-if="pageLoading" class="flex flex-col items-center justify-center py-24">
       <Loader2 class="h-8 w-8 animate-spin text-accent" />
-      <p class="mt-4 text-xs text-muted-foreground">Synchronizing your dashboard with database...</p>
+      <p class="mt-4 text-xs text-muted-foreground">
+        Synchronizing your dashboard with database...
+      </p>
     </div>
 
     <div v-else>
@@ -124,7 +138,8 @@
           <Inbox class="mx-auto h-10 w-10 text-muted-foreground/60" />
           <h3 class="font-display mt-4 text-xl font-bold text-primary">No orders requests found</h3>
           <p class="mt-2 text-xs text-muted-foreground max-w-sm mx-auto">
-            Submit your first bespoke request using our constructor or browse predefined studio cards.
+            Submit your first bespoke request using our constructor or browse predefined studio
+            cards.
           </p>
           <div class="mt-5 flex justify-center gap-3">
             <button
@@ -149,7 +164,9 @@
             :key="order.id"
             class="rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-accent/40"
           >
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border pb-4">
+            <div
+              class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border pb-4"
+            >
               <div class="flex items-start gap-4">
                 <!-- Preview card color styling block -->
                 <div
@@ -162,19 +179,31 @@
                     {{ order.model_name }}
                   </h3>
                   <p class="text-xs text-muted-foreground mt-0.5">
-                    Category: <span class="font-semibold text-primary">{{ order.collection_name }}</span>
-                    <span v-if="order.design_variant">&middot; Theme: {{ order.design_variant }}</span>
+                    Category:
+                    <span class="font-semibold text-primary">{{ order.collection_name }}</span>
+                    <span v-if="order.design_variant"
+                      >&middot; Theme: {{ order.design_variant }}</span
+                    >
                   </p>
-                  <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
-                    <span>Qty: <strong class="text-primary">{{ order.quantity }}</strong></span>
+                  <div
+                    class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground"
+                  >
+                    <span
+                      >Qty: <strong class="text-primary">{{ order.quantity }}</strong></span
+                    >
                     <span>Date: {{ formatDate(order.created_at) }}</span>
-                    <span v-if="order.deadline">Required: <strong class="text-primary">{{ formatDate(order.deadline) }}</strong></span>
+                    <span v-if="order.deadline"
+                      >Required:
+                      <strong class="text-primary">{{ formatDate(order.deadline) }}</strong></span
+                    >
                   </div>
                 </div>
               </div>
 
               <!-- Status controls and Cancel actions -->
-              <div class="flex flex-row sm:flex-col sm:items-end justify-between items-center gap-3">
+              <div
+                class="flex flex-row sm:flex-col sm:items-end justify-between items-center gap-3"
+              >
                 <span
                   class="rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-wider"
                   :class="statusClass(order.status)"
@@ -202,42 +231,51 @@
             </div>
 
             <!-- Custom Message details -->
-            <div v-if="order.message" class="my-4 text-xs italic text-muted-foreground bg-secondary/30 rounded-xl p-3 max-w-2xl border border-border/50">
+            <div
+              v-if="order.message"
+              class="my-4 text-xs italic text-muted-foreground bg-secondary/30 rounded-xl p-3 max-w-2xl border border-border/50"
+            >
               "{{ order.message }}"
             </div>
 
             <!-- Dynamic Workflow Stepper -->
             <div v-if="order.status !== 'cancelled'" class="mt-6 pt-4 border-t border-border/40">
-              <p class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-4">Design Proof Workflow progress</p>
-              
+              <p class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                Design Proof Workflow progress
+              </p>
+
               <div class="relative flex items-center justify-between px-2 sm:px-6">
                 <!-- Connect Line -->
-                <div class="absolute left-6 right-6 top-[11px] h-0.5 bg-border -translate-y-1/2 -z-10"></div>
-                <div 
+                <div
+                  class="absolute left-6 right-6 top-[11px] h-0.5 bg-border -translate-y-1/2 -z-10"
+                ></div>
+                <div
                   class="absolute left-6 top-[11px] h-0.5 bg-accent -translate-y-1/2 -z-10 transition-all duration-700 ease-in-out"
                   :style="{ width: `${(getStepIndex(order.status) / 4) * 88}%` }"
                 ></div>
 
                 <!-- Stepper Nodes -->
-                <div 
-                  v-for="(step, idx) in stepperSteps" 
-                  :key="step.label" 
+                <div
+                  v-for="(step, idx) in stepperSteps"
+                  :key="step.label"
                   class="flex flex-col items-center"
                 >
-                  <div 
+                  <div
                     class="h-5.5 w-5.5 rounded-full flex items-center justify-center text-[9px] font-bold border transition-all duration-500"
                     :class="
-                      idx <= getStepIndex(order.status) 
-                        ? 'bg-accent border-accent text-white shadow-sm scale-110' 
+                      idx <= getStepIndex(order.status)
+                        ? 'bg-accent border-accent text-white shadow-sm scale-110'
                         : 'bg-background border-border text-muted-foreground'
                     "
                   >
                     <Check v-if="idx < getStepIndex(order.status)" class="h-3 w-3" />
                     <span v-else>{{ idx + 1 }}</span>
                   </div>
-                  <span 
+                  <span
                     class="text-[9px] font-semibold mt-2.5 bg-card px-1 transition-colors duration-300"
-                    :class="idx <= getStepIndex(order.status) ? 'text-primary' : 'text-muted-foreground'"
+                    :class="
+                      idx <= getStepIndex(order.status) ? 'text-primary' : 'text-muted-foreground'
+                    "
                   >
                     {{ step.label }}
                   </span>
@@ -246,28 +284,40 @@
             </div>
 
             <!-- Cancelled Alert Callout -->
-            <div v-else class="mt-4 rounded-xl border border-destructive/15 bg-destructive/5 p-3 flex items-center gap-2 text-xs text-destructive">
+            <div
+              v-else
+              class="mt-4 rounded-xl border border-destructive/15 bg-destructive/5 p-3 flex items-center gap-2 text-xs text-destructive"
+            >
               <AlertCircle class="h-4 w-4 shrink-0" />
-              This request was cancelled on the client's request. To submit modifications, please initiate a new request.
+              This request was cancelled on the client's request. To submit modifications, please
+              initiate a new request.
             </div>
           </article>
         </div>
       </section>
 
       <!-- Tab 2: Place Custom Request ("customer items add" feature) -->
-      <section v-else-if="activeTab === 'custom-request'" class="rounded-2xl border border-border bg-card p-6 shadow-sm animate-fade-up">
+      <section
+        v-else-if="activeTab === 'custom-request'"
+        class="rounded-2xl border border-border bg-card p-6 shadow-sm animate-fade-up"
+      >
         <div class="mb-6 flex items-center gap-2 border-b border-border pb-3">
           <Sparkles class="h-5 w-5 text-accent" />
           <div>
             <h2 class="font-display text-xl font-bold text-primary">Submit Bespoke Card Request</h2>
-            <p class="text-xs text-muted-foreground">Order a fully custom card styling directly created for your project.</p>
+            <p class="text-xs text-muted-foreground">
+              Order a fully custom card styling directly created for your project.
+            </p>
           </div>
         </div>
 
         <form @submit.prevent="submitCustomRequest" class="grid gap-4 sm:grid-cols-2">
           <!-- Card Title -->
           <div class="space-y-1.5 sm:col-span-2">
-            <label for="custom_model_name" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_model_name"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Card design request title *
             </label>
             <input
@@ -283,7 +333,10 @@
 
           <!-- Collection category dropdown -->
           <div class="space-y-1.5">
-            <label for="custom_collection_name" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_collection_name"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Design category / Event *
             </label>
             <select
@@ -304,7 +357,10 @@
 
           <!-- Theme variant input -->
           <div class="space-y-1.5">
-            <label for="custom_design_variant" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_design_variant"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Preferred theme / Material variant
             </label>
             <input
@@ -319,7 +375,10 @@
 
           <!-- Quantity input -->
           <div class="space-y-1.5">
-            <label for="custom_quantity" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_quantity"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Quantity needed *
             </label>
             <input
@@ -335,7 +394,10 @@
 
           <!-- Deadline Date -->
           <div class="space-y-1.5">
-            <label for="custom_deadline" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_deadline"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Required by (optional deadline)
             </label>
             <input
@@ -348,7 +410,10 @@
 
           <!-- Telephone number -->
           <div class="space-y-1.5 sm:col-span-2">
-            <label for="custom_phone" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_phone"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Contact Phone number *
             </label>
             <div class="relative">
@@ -367,7 +432,10 @@
 
           <!-- Message box -->
           <div class="space-y-1.5 sm:col-span-2">
-            <label for="custom_message" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label
+              for="custom_message"
+              class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Design specifications / Editorial notes
             </label>
             <textarea
@@ -406,7 +474,10 @@
           <form @submit.prevent="saveProfileSettings" class="space-y-4">
             <!-- Full Name input -->
             <div class="space-y-1.5">
-              <label for="settings_display_name" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label
+                for="settings_display_name"
+                class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >
                 Display name
               </label>
               <input
@@ -421,7 +492,10 @@
 
             <!-- Email (disabled, read-only) -->
             <div class="space-y-1.5">
-              <label for="settings_email" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label
+                for="settings_email"
+                class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >
                 Primary Email
               </label>
               <input
@@ -430,12 +504,17 @@
                 disabled
                 class="min-h-11 w-full rounded-md border border-input bg-secondary/40 px-3 py-2 text-sm outline-none cursor-not-allowed opacity-80"
               />
-              <p class="text-[10px] text-muted-foreground">Contact Nexique support to alter your primary email credential.</p>
+              <p class="text-[10px] text-muted-foreground">
+                Contact Nexique support to alter your primary email credential.
+              </p>
             </div>
 
             <!-- Phone number -->
             <div class="space-y-1.5">
-              <label for="settings_phone" class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label
+                for="settings_phone"
+                class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >
                 Phone Number
               </label>
               <input
@@ -450,7 +529,9 @@
 
             <!-- User Theme Avatar customization -->
             <div class="space-y-1.5">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Avatar color theme</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+                >Avatar color theme</span
+              >
               <div class="flex flex-wrap gap-3 mt-1.5">
                 <button
                   v-for="color in themeColors"
@@ -479,7 +560,8 @@
                 class="mt-1 rounded border-border bg-background text-accent outline-none focus:ring-accent"
               />
               <label for="settings_newsletter" class="text-xs text-muted-foreground select-none">
-                Subscribe to Nexique Editorial Newsletter. Receive design drops, print suggestions, and portfolio launches.
+                Subscribe to Nexique Editorial Newsletter. Receive design drops, print suggestions,
+                and portfolio launches.
               </label>
             </div>
 
@@ -498,7 +580,9 @@
         </div>
 
         <!-- Billing Info section -->
-        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div
+          class="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
           <div class="flex items-start gap-3">
             <div class="mt-1 p-2 rounded-xl bg-secondary/80 text-accent border border-border">
               <CreditCard class="h-5 w-5" />
@@ -506,11 +590,14 @@
             <div>
               <h3 class="font-display text-lg font-bold text-primary">Billing Details</h3>
               <p v-if="profile?.billing" class="text-xs text-muted-foreground mt-0.5 max-w-sm">
-                Saved for: <strong>{{ profile.billing.cardholderName || user?.displayName }}</strong><br />
-                {{ profile.billing.street }}, {{ profile.billing.city }}, {{ profile.billing.state }} {{ profile.billing.zip }}, {{ profile.billing.country }}
+                Saved for: <strong>{{ profile.billing.cardholderName || user?.displayName }}</strong
+                ><br />
+                {{ profile.billing.street }}, {{ profile.billing.city }},
+                {{ profile.billing.state }} {{ profile.billing.zip }}, {{ profile.billing.country }}
               </p>
               <p v-else class="text-xs text-muted-foreground mt-0.5">
-                No billing credentials registered yet. Register details to expedite design quotes and billing agreements.
+                No billing credentials registered yet. Register details to expedite design quotes
+                and billing agreements.
               </p>
             </div>
           </div>
@@ -536,7 +623,9 @@
         aria-modal="true"
         @click.self="showBillingModal = false"
       >
-        <div class="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-xl animate-fade-up">
+        <div
+          class="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-xl animate-fade-up"
+        >
           <!-- Close button -->
           <button
             type="button"
@@ -557,7 +646,8 @@
                 Edit Billing Credentials
               </h3>
               <p class="text-xs text-muted-foreground">
-                These credentials populate invoice documentation and design contracts. Stored securely on MongoDB.
+                These credentials populate invoice documentation and design contracts. Stored
+                securely on MongoDB.
               </p>
             </div>
           </div>
@@ -566,7 +656,10 @@
           <form @submit.prevent="saveBillingDetails" class="space-y-4">
             <!-- Cardholder Name -->
             <div class="space-y-1">
-              <label for="billing_name" class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label
+                for="billing_name"
+                class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
+              >
                 Cardholder full name *
               </label>
               <input
@@ -582,7 +675,10 @@
 
             <!-- Billing address: Street -->
             <div class="space-y-1">
-              <label for="billing_street" class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label
+                for="billing_street"
+                class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
+              >
                 Street Address *
               </label>
               <input
@@ -599,7 +695,10 @@
             <!-- City and State Grid -->
             <div class="grid gap-4 grid-cols-2">
               <div class="space-y-1">
-                <label for="billing_city" class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label
+                  for="billing_city"
+                  class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
+                >
                   City *
                 </label>
                 <input
@@ -613,7 +712,10 @@
                 />
               </div>
               <div class="space-y-1">
-                <label for="billing_state" class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label
+                  for="billing_state"
+                  class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
+                >
                   State / Province *
                 </label>
                 <input
@@ -631,7 +733,10 @@
             <!-- Zip and Country Grid -->
             <div class="grid gap-4 grid-cols-2">
               <div class="space-y-1">
-                <label for="billing_zip" class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label
+                  for="billing_zip"
+                  class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
+                >
                   Zip / Postal Code *
                 </label>
                 <input
@@ -645,7 +750,10 @@
                 />
               </div>
               <div class="space-y-1">
-                <label for="billing_country" class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label
+                  for="billing_country"
+                  class="text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
+                >
                   Country *
                 </label>
                 <input
@@ -702,11 +810,8 @@ import {
   AlertCircle,
   Sparkles,
   Phone,
-  Mail,
-  Calendar,
-  Layers,
   X,
-  Check
+  Check,
 } from "@lucide/vue";
 
 import { onAuthState, logOut, getFirebaseToken, updateFirebaseProfile } from "@/lib/firebase";
@@ -715,7 +820,7 @@ import {
   cancelCustomerOrder,
   createOrder,
   getCustomerProfile,
-  updateCustomerProfile
+  updateCustomerProfile,
 } from "@/lib/store";
 import { useToast } from "@/composables/useToast";
 import { statusClass, statusLabel } from "@/lib/orderWorkflow";
@@ -740,20 +845,20 @@ const stepperSteps = [
   { label: "Reviewed" },
   { label: "Proofing" },
   { label: "Production" },
-  { label: "Delivered" }
+  { label: "Delivered" },
 ];
 
 const themeColors = [
   { id: "accent", name: "Steel Accent", colorClass: "bg-accent" },
   { id: "blue", name: "Deep Indigo", colorClass: "bg-blue-600" },
   { id: "gold", name: "Saffron Gold", colorClass: "bg-amber-500" },
-  { id: "burgundy", name: "Imperial Burgundy", colorClass: "bg-rose-800" }
+  { id: "burgundy", name: "Imperial Burgundy", colorClass: "bg-rose-800" },
 ];
 
 const tabs = [
   { id: "orders", name: "Orders & Proofs", icon: ClipboardList },
   { id: "custom-request", name: "Custom Request", icon: Plus },
-  { id: "settings", name: "Account & Settings", icon: User }
+  { id: "settings", name: "Account & Settings", icon: User },
 ];
 
 // Profile forms state
@@ -761,7 +866,7 @@ const profileForm = reactive({
   displayName: "",
   phone: "",
   newsletter: false,
-  avatarColor: "accent"
+  avatarColor: "accent",
 });
 
 // Billing form state
@@ -771,7 +876,7 @@ const billingForm = reactive({
   city: "",
   state: "",
   zip: "",
-  country: ""
+  country: "",
 });
 
 // Custom card request state
@@ -782,19 +887,23 @@ const customForm = reactive({
   quantity: 100,
   deadline: "",
   customer_phone: "",
-  message: ""
+  message: "",
 });
+
+let signingOut = false;
 
 onMounted(() => {
   onAuthState(async (currentUser) => {
     if (!currentUser) {
-      toast.info("Please sign in to view your profile.");
+      if (!signingOut) {
+        toast.info("Please sign in to view your profile.");
+      }
       router.push({ name: "login" });
       return;
     }
     user.value = currentUser;
     profileForm.displayName = currentUser.displayName || "";
-    
+
     await Promise.all([fetchOrders(), fetchProfile()]);
     pageLoading.value = false;
   });
@@ -820,9 +929,21 @@ const avatarBgClass = computed(() => {
 
 const activeOrdersCount = computed(() => {
   return orders.value.filter((order) =>
-    ["new", "contacted", "proofing", "in_production"].includes(order.status)
+    ["new", "contacted", "proofing", "in_production"].includes(order.status),
   ).length;
 });
+
+async function handleSignOut() {
+  try {
+    signingOut = true;
+    await logOut();
+    router.push({ name: "login" });
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to sign out.");
+    signingOut = false;
+  }
+}
 
 async function fetchOrders() {
   try {
@@ -844,12 +965,12 @@ async function fetchProfile() {
       profileForm.phone = data.phone || "";
       profileForm.newsletter = !!data.preferences?.newsletter;
       profileForm.avatarColor = data.preferences?.avatarColor || "accent";
-      
+
       // Auto populate phone in custom order form if available
       if (data.phone) {
         customForm.customer_phone = data.phone;
       }
-      
+
       // Load billing details
       if (data.billing) {
         billingForm.cardholderName = data.billing.cardholderName || "";
@@ -870,13 +991,13 @@ async function saveProfileSettings() {
   savingSettings.value = true;
   try {
     const token = await getFirebaseToken();
-    
+
     // Sync display name with Firebase Auth
     if (profileForm.displayName && profileForm.displayName !== user.value.displayName) {
       await updateFirebaseProfile(profileForm.displayName);
       user.value.displayName = profileForm.displayName;
     }
-    
+
     // Update preferences in MongoDB profile
     const response = await updateCustomerProfile(
       {
@@ -885,12 +1006,12 @@ async function saveProfileSettings() {
         preferences: {
           newsletter: profileForm.newsletter,
           avatarColor: profileForm.avatarColor,
-          accentColor: "default"
-        }
+          accentColor: "default",
+        },
       },
-      token
+      token,
     );
-    
+
     profile.value = response;
     toast.success("Profile configuration updated successfully.");
   } catch (err) {
@@ -914,17 +1035,17 @@ async function saveBillingDetails() {
           city: billingForm.city,
           state: billingForm.state,
           zip: billingForm.zip,
-          country: billingForm.country
+          country: billingForm.country,
         },
         preferences: {
           newsletter: profileForm.newsletter,
           avatarColor: profileForm.avatarColor,
-          accentColor: "default"
-        }
+          accentColor: "default",
+        },
       },
-      token
+      token,
     );
-    
+
     profile.value = response;
     showBillingModal.value = false;
     toast.success("Billing credentials registered successfully.");
@@ -945,7 +1066,7 @@ async function submitCustomRequest() {
   submittingCustom.value = true;
   try {
     const deadlineVal = customForm.deadline ? new Date(customForm.deadline).toISOString() : null;
-    
+
     await createOrder({
       customer_name: user.value.displayName || user.value.email.split("@")[0].toUpperCase(),
       customer_email: user.value.email,
@@ -958,11 +1079,11 @@ async function submitCustomRequest() {
       model_name: customForm.model_name,
       design_variant: customForm.design_variant || "Custom Request Theme",
       customer_uid: user.value.uid,
-      deadline: deadlineVal
+      deadline: deadlineVal,
     });
 
     toast.success("Bespoke request added to portfolio!");
-    
+
     // Reset custom request form fields, saving the phone number
     const savedPhone = customForm.customer_phone;
     Object.keys(customForm).forEach((key) => {
@@ -1020,7 +1141,7 @@ function formatDate(val) {
   return new Date(val).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
-    year: "numeric"
+    year: "numeric",
   });
 }
 </script>

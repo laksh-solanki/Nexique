@@ -161,7 +161,7 @@ onMounted(() => {
     if (user) {
       form.customer_email = user.email || "";
       form.customer_name = user.displayName || user.email.split("@")[0].toUpperCase() || "";
-      
+
       try {
         const token = await getFirebaseToken();
         if (token) {

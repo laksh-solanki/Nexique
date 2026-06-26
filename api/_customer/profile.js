@@ -1,5 +1,4 @@
 import {
-  badRequest,
   assertSameOrigin,
   handleApiError,
   methodNotAllowed,
@@ -23,10 +22,7 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
       const profile = await db.collection("customer_profiles").findOne({
-        $or: [
-          { customer_email: customer.email },
-          { customer_uid: customer.uid }
-        ]
+        $or: [{ customer_email: customer.email }, { customer_uid: customer.uid }],
       });
 
       if (!profile) {
@@ -40,9 +36,9 @@ export default async function handler(req, res) {
             preferences: {
               newsletter: false,
               accentColor: "default",
-              avatarColor: "accent"
-            }
-          }
+              avatarColor: "accent",
+            },
+          },
         });
       }
 
@@ -51,41 +47,56 @@ export default async function handler(req, res) {
 
     if (req.method === "PATCH") {
       const payload = await readJson(req);
-      
-      const phone = String(payload.phone || "").trim().slice(0, 30);
-      
+
+      const phone = String(payload.phone || "")
+        .trim()
+        .slice(0, 30);
+
       let billing = null;
       if (payload.billing && typeof payload.billing === "object") {
         billing = {
-          cardholderName: String(payload.billing.cardholderName || "").trim().slice(0, 100),
-          street: String(payload.billing.street || "").trim().slice(0, 200),
-          city: String(payload.billing.city || "").trim().slice(0, 100),
-          state: String(payload.billing.state || "").trim().slice(0, 100),
-          zip: String(payload.billing.zip || "").trim().slice(0, 20),
-          country: String(payload.billing.country || "").trim().slice(0, 100)
+          cardholderName: String(payload.billing.cardholderName || "")
+            .trim()
+            .slice(0, 100),
+          street: String(payload.billing.street || "")
+            .trim()
+            .slice(0, 200),
+          city: String(payload.billing.city || "")
+            .trim()
+            .slice(0, 100),
+          state: String(payload.billing.state || "")
+            .trim()
+            .slice(0, 100),
+          zip: String(payload.billing.zip || "")
+            .trim()
+            .slice(0, 20),
+          country: String(payload.billing.country || "")
+            .trim()
+            .slice(0, 100),
         };
       }
 
       let preferences = {
         newsletter: false,
         accentColor: "default",
-        avatarColor: "accent"
+        avatarColor: "accent",
       };
       if (payload.preferences && typeof payload.preferences === "object") {
         preferences = {
           newsletter: !!payload.preferences.newsletter,
-          accentColor: String(payload.preferences.accentColor || "default").trim().slice(0, 20),
-          avatarColor: String(payload.preferences.avatarColor || "accent").trim().slice(0, 20)
+          accentColor: String(payload.preferences.accentColor || "default")
+            .trim()
+            .slice(0, 20),
+          avatarColor: String(payload.preferences.avatarColor || "accent")
+            .trim()
+            .slice(0, 20),
         };
       }
 
       const now = new Date();
       await db.collection("customer_profiles").updateOne(
-        { 
-          $or: [
-            { customer_uid: customer.uid },
-            { customer_email: customer.email }
-          ]
+        {
+          $or: [{ customer_uid: customer.uid }, { customer_email: customer.email }],
         },
         {
           $set: {
@@ -94,17 +105,17 @@ export default async function handler(req, res) {
             phone,
             billing,
             preferences,
-            updated_at: now
+            updated_at: now,
           },
           $setOnInsert: {
-            created_at: now
-          }
+            created_at: now,
+          },
         },
-        { upsert: true }
+        { upsert: true },
       );
 
       const updatedProfile = await db.collection("customer_profiles").findOne({
-        customer_uid: customer.uid
+        customer_uid: customer.uid,
       });
 
       await logAdminAction(`customer:${customer.email}`, "update_profile", { uid: customer.uid });

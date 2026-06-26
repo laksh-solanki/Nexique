@@ -151,7 +151,7 @@ import CategoryCardArt from "@/components/CategoryCardArt.vue";
 import VariantPreviewDialog from "@/components/VariantPreviewDialog.vue";
 import NotFound from "@/pages/NotFound.vue";
 import {
-  baseDesignVariantSlugs,
+  defaultModelVariantSlugs,
   designVariantName,
   getCollection,
   getDesignVariants,
@@ -200,7 +200,7 @@ const modelCards = computed(() => {
         tint: override?.tint || model.tint,
         variant_slugs: normalizeDesignVariantSlugs(
           override?.variant_slugs || model.variant_slugs,
-          baseDesignVariantSlugs,
+          defaultModelVariantSlugs(model),
         ),
         asset_name: model.name,
         preview,

@@ -821,7 +821,7 @@ import {
 import CategoryCardArt from "@/components/CategoryCardArt.vue";
 import { useToast } from "@/composables/useToast";
 import {
-  baseDesignVariantSlugs,
+  defaultModelVariantSlugs,
   collections,
   designVariantName,
   normalizeDesignVariantSlugs,
@@ -911,7 +911,7 @@ const staticProducts = computed(() =>
           image_data_url: override?.image_data_url || "",
           variant_slugs: normalizeDesignVariantSlugs(
             override?.variant_slugs || model.variant_slugs,
-            baseDesignVariantSlugs,
+            defaultModelVariantSlugs(model),
           ),
           editable: true,
           deletable: true,
