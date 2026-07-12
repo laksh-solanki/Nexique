@@ -34,6 +34,9 @@
   --color-cream: var(--cream);
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-sans: "Karla", "Inter", system-ui, sans-serif;
+  --font-cursive-hand: "Sacramento", cursive;
+  --font-cursive-lux: "Great Vibes", cursive;
+  --font-serif-disp: "Cinzel", serif;
 }
 
 :root {
@@ -262,6 +265,152 @@
 }
 .font-display {
   font-family: var(--font-display);
+}
+
+/* Custom handwriting, cursive, and display serif font helpers */
+.font-cursive-hand {
+  font-family: var(--font-cursive-hand), cursive;
+}
+.font-cursive-lux {
+  font-family: var(--font-cursive-lux), cursive;
+}
+.font-serif-disp {
+  font-family: var(--font-serif-disp), serif;
+}
+
+/* Foil Text Masking Gradients */
+.foil-gold-text {
+  background: linear-gradient(
+    135deg,
+    #bf953f 0%,
+    #fcf6ba 25%,
+    #b38728 50%,
+    #fbf5b7 75%,
+    #aa771c 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+.foil-silver-text {
+  background: linear-gradient(
+    135deg,
+    #a1a2a6 0%,
+    #f1f2f5 25%,
+    #b4b5b9 50%,
+    #f1f2f5 75%,
+    #8a8b8f 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+.foil-rose-gold-text {
+  background: linear-gradient(
+    135deg,
+    #e0b0ff 0%,
+    #ffd1dc 25%,
+    #b76e79 50%,
+    #ffc0cb 75%,
+    #a8516e 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+.foil-holo-text {
+  background: linear-gradient(
+    135deg,
+    #ff0055 0%,
+    #ffff00 20%,
+    #00ffaa 40%,
+    #00ffff 60%,
+    #ff00ff 80%,
+    #ff0055 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+/* Foil Solid Backgrounds for borders, icons & accents */
+.foil-gold-bg {
+  background: linear-gradient(
+    135deg,
+    #bf953f 0%,
+    #fcf6ba 25%,
+    #b38728 50%,
+    #fbf5b7 75%,
+    #aa771c 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 5s linear infinite;
+}
+.foil-silver-bg {
+  background: linear-gradient(
+    135deg,
+    #a1a2a6 0%,
+    #f1f2f5 25%,
+    #b4b5b9 50%,
+    #f1f2f5 75%,
+    #8a8b8f 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 5s linear infinite;
+}
+.foil-rose-gold-bg {
+  background: linear-gradient(
+    135deg,
+    #e0b0ff 0%,
+    #ffd1dc 25%,
+    #b76e79 50%,
+    #ffc0cb 75%,
+    #a8516e 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 5s linear infinite;
+}
+.foil-holo-bg {
+  background: linear-gradient(
+    135deg,
+    #ff0055 0%,
+    #ffff00 20%,
+    #00ffaa 40%,
+    #00ffff 60%,
+    #ff00ff 80%,
+    #ff0055 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 5s linear infinite;
+}
+
+/* 3D Card Helpers */
+.perspective-1200 {
+  perspective: 1200px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }
 
 @layer base {

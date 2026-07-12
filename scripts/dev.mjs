@@ -1,20 +1,33 @@
 import { spawn } from "node:child_process";
 
-const vercelArgs = [
-  "--yes",
-  "vercel@54.9.1",
-  "dev",
-  "--listen",
-  "3000",
-  "--scope",
-  "laksh-solanki-coders-projects",
-];
+// If --vercel flag is present, run Vercel CLI. Otherwise run Vite directly on port 3000.
+const useVercel = process.argv.includes("--vercel");
 
-const command = process.platform === "win32" ? process.env.ComSpec || "cmd.exe" : "npx";
-const args =
-  process.platform === "win32" ? ["/d", "/s", "/c", `npx ${vercelArgs.join(" ")}`] : vercelArgs;
+let runCommand;
+let runArgs;
 
-const child = spawn(command, args, {
+if (useVercel) {
+  const vercelArgs = [
+    "--yes",
+    "vercel@54.9.1",
+    "dev",
+    "--listen",
+    "3000",
+    "--scope",
+    "laksh-solanki-coders-projects",
+  ];
+  runCommand = process.platform === "win32" ? process.env.ComSpec || "cmd.exe" : "npx";
+  runArgs =
+    process.platform === "win32" ? ["/d", "/s", "/c", `npx ${vercelArgs.join(" ")}`] : vercelArgs;
+} else {
+  // Directly run Vite on port 3000 for zero-auth local setup
+  const viteArgs = ["vite", "--port", "3000", "--host"];
+  runCommand = process.platform === "win32" ? process.env.ComSpec || "cmd.exe" : "npx";
+  runArgs =
+    process.platform === "win32" ? ["/d", "/s", "/c", `npx ${viteArgs.join(" ")}`] : viteArgs;
+}
+
+const child = spawn(runCommand, runArgs, {
   stdio: "inherit",
 });
 

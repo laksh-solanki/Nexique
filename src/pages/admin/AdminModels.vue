@@ -825,6 +825,7 @@ import {
   collections,
   designVariantName,
   normalizeDesignVariantSlugs,
+  slugify,
 } from "@/lib/collections-data";
 import { formatPrice, parsePriceInput } from "@/lib/pricing";
 import {
@@ -1153,6 +1154,13 @@ async function addModel() {
     return;
   }
 
+  const newSlug = slugify(form.name);
+  const existsInStatic = collectionList.some((col) => col.models.some((m) => m.slug === newSlug));
+  if (existsInStatic) {
+    toast.error("A base card with this name already exists. Please use a unique name.");
+    return;
+  }
+
   const variantSlugs = parseSubcategoryNames(form.subcategory_names);
   if (variantSlugs.length === 0) {
     toast.error("Enter at least one subcategory name.");
@@ -1353,6 +1361,15 @@ async function saveProductDetails() {
   if (price == null) {
     toast.error("Enter a valid price.");
     return;
+  }
+
+  if (!selectedProduct.value.base) {
+    const newSlug = slugify(detailForm.name);
+    const existsInStatic = collectionList.some((col) => col.models.some((m) => m.slug === newSlug));
+    if (existsInStatic) {
+      toast.error("A base card with this name already exists. Please use a unique name.");
+      return;
+    }
   }
 
   const variantSlugs = parseSubcategoryNames(detailForm.subcategory_names);

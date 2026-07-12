@@ -126,7 +126,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, onMounted, watch } from "vue";
 import { Loader2, Mail, Lock } from "@lucide/vue";
 
 import { onAuthState, getFirebaseToken } from "@/lib/firebase";
@@ -139,6 +139,7 @@ const props = defineProps({
   modelSlug: { type: String, required: true },
   modelName: { type: String, required: true },
   designVariant: { type: String, default: "" },
+  initialMessage: { type: String, default: "" },
 });
 
 const emit = defineEmits(["submitted"]);
@@ -152,8 +153,19 @@ const form = reactive({
   customer_email: "",
   customer_phone: "",
   quantity: 1,
-  message: "",
+  message: props.initialMessage || "",
 });
+
+// Watch initialMessage to dynamically populate instructions textarea
+watch(
+  () => props.initialMessage,
+  (newVal) => {
+    if (newVal) {
+      form.message = newVal;
+    }
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   onAuthState(async (user) => {

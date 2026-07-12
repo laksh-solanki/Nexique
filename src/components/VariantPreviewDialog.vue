@@ -62,6 +62,7 @@
             >
               <ZoomIn class="h-4 w-4" />
             </button>
+
             <button
               type="button"
               class="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-4"
@@ -70,6 +71,7 @@
               <ShoppingBag class="h-4 w-4" />
               Order Now
             </button>
+
             <button
               type="button"
               class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition hover:border-accent/50 hover:text-accent"
@@ -83,87 +85,170 @@
         </header>
 
         <div
-          class="grid flex-1 overflow-y-auto lg:min-h-0 lg:overflow-hidden"
-          :class="showOrderForm ? 'lg:grid-cols-[minmax(0,1fr)_420px]' : 'lg:grid-cols-1'"
+          class="grid flex-1 overflow-y-auto lg:min-h-0 lg:overflow-hidden lg:grid-cols-[minmax(0,1fr)_420px]"
         >
-          <div class="bg-secondary/50 p-3 sm:p-5 lg:min-h-0 lg:overflow-y-auto">
+          <!-- Left Column: Personalised Card Preview -->
+          <div
+            class="bg-secondary/50 p-3 sm:p-5 lg:min-h-0 lg:overflow-y-auto flex items-center justify-center"
+          >
             <div
               ref="previewScroller"
-              class="overflow-auto rounded-xl border border-border bg-background p-3 sm:p-4"
-              :class="[
-                previewDragClass,
-                showOrderForm
-                  ? 'h-[34vh] min-h-[190px] sm:h-[44vh] sm:min-h-[260px] lg:h-[70vh] lg:min-h-[320px]'
-                  : 'h-[50vh] min-h-[260px] sm:h-[60vh] sm:min-h-[320px] lg:h-[70vh]',
-              ]"
-              @pointerdown="startPreviewDrag"
-              @pointermove="dragPreview"
-              @pointerup="endPreviewDrag"
-              @pointercancel="endPreviewDrag"
-              @pointerleave="endPreviewDrag"
+              class="overflow-auto rounded-xl border border-border bg-background p-3 sm:p-4 w-full flex h-[50vh] min-h-[300px] sm:h-[60vh] sm:min-h-[380px] lg:h-[70vh]"
             >
+              <!-- Outer wrapper that reserves the scaled space for scrollbars -->
               <div
-                class="flex items-center justify-center transition-[width,height] duration-200"
+                class="relative flex items-center justify-center shrink-0 m-auto"
                 :style="zoomFrameStyle"
               >
+                <!-- Inner container that actually applies the CSS transform scale -->
                 <div
-                  v-if="variant.imageLoading"
-                  class="flex min-h-80 w-full max-w-md flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                  class="origin-center transition-transform duration-200 absolute"
+                  :style="zoomTransformStyle"
                 >
-                  <Loader2 class="h-5 w-5 animate-spin text-accent" />
-                  <span>Loading image</span>
-                </div>
-                <img
-                  v-else-if="variant.imageSrc"
-                  :src="variant.imageSrc"
-                  :alt="variant.imageAlt || `${model.name} ${variant.name} design`"
-                  draggable="false"
-                  class="max-h-full max-w-full rounded-lg object-contain shadow-card"
-                  @dragstart.prevent
-                />
-                <div
-                  v-else-if="variant.imageError"
-                  class="flex min-h-80 w-full max-w-md flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                >
-                  <ImageOff class="h-5 w-5 text-accent" />
-                  <span>Image not loaded</span>
-                  <span class="max-w-sm text-[10px] font-medium normal-case tracking-normal">
-                    {{ variant.imageError }}
-                  </span>
-                </div>
-                <div v-else class="w-full max-w-md">
-                  <VariantPreview
-                    :variant="variant"
-                    :tint="model.tint"
-                    :icon="collection.icon"
-                    :title="model.name"
+                  <DesignPreview
+                    :image-src="variant.imageSrc"
+                    :image-alt="variant.imageAlt"
                     :image-loading="variant.imageLoading"
                     :image-error="variant.imageError"
+                    :title="model?.name || title || ''"
+                    :tint="model.tint"
+                    :icon="collection.icon"
+                    :variant="variant"
+                    :font-class="selectedFont"
+                    :custom-message="defaultCardMessage"
                   />
                 </div>
               </div>
             </div>
           </div>
 
+          <!-- Right Column: Personalization & Order Workspace -->
           <aside
-            v-if="showOrderForm"
             ref="orderPanel"
             class="scroll-mt-2 border-t border-border bg-card p-4 sm:p-6 lg:min-h-0 lg:overflow-y-auto lg:border-l lg:border-t-0"
           >
-            <div class="mb-5">
-              <h3 class="font-display text-2xl font-bold tracking-tight">Order Now</h3>
-              <p class="text-sm text-muted-foreground">
-                {{ orderSummary }}
-              </p>
+            <!-- Design Workspace Tabs -->
+            <div class="mb-5 flex border-b border-border">
+              <button
+                type="button"
+                class="flex-1 pb-3 text-center text-xs font-bold uppercase tracking-wider transition-colors border-b-2"
+                :class="
+                  activeTab === 'personalize'
+                    ? 'border-accent text-accent'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                "
+                @click="activeTab = 'personalize'"
+              >
+                1. Personalise
+              </button>
+              <button
+                type="button"
+                class="flex-1 pb-3 text-center text-xs font-bold uppercase tracking-wider transition-colors border-b-2"
+                :class="
+                  activeTab === 'order'
+                    ? 'border-accent text-accent'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                "
+                @click="activeTab = 'order'"
+              >
+                2. Order Desk
+              </button>
             </div>
-            <OrderForm
-              :collection-slug="collection.slug"
-              :collection-name="collection.name"
-              :model-slug="orderModelSlug"
-              :model-name="orderModelName"
-              :design-variant="orderDesignVariant"
-              @submitted="handleSubmitted"
-            />
+
+            <!-- Tab Content: Personalize -->
+            <div v-show="activeTab === 'personalize'" class="space-y-6">
+              <div>
+                <h3 class="font-display text-xl font-bold tracking-tight">Personalise Card</h3>
+                <p class="text-xs text-muted-foreground mt-1">
+                  Customise wording, foils, and papers in real-time.
+                </p>
+              </div>
+
+              <!-- Card Title Wording -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  >Card Title</label
+                >
+                <input
+                  v-model="customTitle"
+                  type="text"
+                  placeholder="E.g., Happy Birthday"
+                  class="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+                />
+              </div>
+
+              <!-- Card Message -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  >Personal Message</label
+                >
+                <textarea
+                  v-model="customMessage"
+                  rows="3"
+                  placeholder="Type your message to print on the card..."
+                  class="min-h-24 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+                />
+              </div>
+
+              <!-- Typography Font Selection -->
+              <div class="space-y-2">
+                <label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  >Calligraphy Font</label
+                >
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    v-for="fontOpt in fontOptions"
+                    :key="fontOpt.class"
+                    type="button"
+                    class="click-pop text-left rounded-lg border p-2.5 transition flex flex-col justify-between h-16"
+                    :class="[
+                      selectedFont === fontOpt.class
+                        ? 'border-accent bg-accent/5 text-accent'
+                        : 'border-border bg-background text-muted-foreground hover:border-accent/40 hover:text-foreground',
+                    ]"
+                    @click="selectedFont = fontOpt.class"
+                  >
+                    <span class="text-[9px] uppercase tracking-wider opacity-60">{{
+                      fontOpt.name
+                    }}</span>
+                    <span
+                      :class="fontOpt.class"
+                      class="text-xs font-semibold truncate leading-none mt-1"
+                      >{{ fontOpt.preview }}</span
+                    >
+                  </button>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-border">
+                <button
+                  type="button"
+                  class="click-pop ripple w-full inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition hover:bg-accent"
+                  @click="openOrderForm"
+                >
+                  Confirm Details &amp; Order
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Content: Order Desk -->
+            <div v-show="activeTab === 'order'" class="space-y-4">
+              <div class="mb-5">
+                <h3 class="font-display text-xl font-bold tracking-tight">Order Desk</h3>
+                <p class="text-xs text-muted-foreground mt-1">
+                  {{ orderSummary }}
+                </p>
+              </div>
+              <OrderForm
+                :collection-slug="collection.slug"
+                :collection-name="collection.name"
+                :model-slug="orderModelSlug"
+                :model-name="orderModelName"
+                :design-variant="orderDesignVariant"
+                :initial-message="generatedInstructions"
+                @submitted="handleSubmitted"
+              />
+            </div>
           </aside>
         </div>
       </section>
@@ -172,16 +257,34 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
-import { ImageOff, Loader2, ShoppingBag, X, ZoomIn, ZoomOut } from "@lucide/vue";
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from "vue";
+import { ShoppingBag, X, ZoomIn, ZoomOut } from "@lucide/vue";
 
 import OrderForm from "@/components/OrderForm.vue";
-import VariantPreview from "@/components/VariantPreview.vue";
+import DesignPreview from "@/components/DesignPreview.vue";
 import { formatPrice } from "@/lib/pricing";
 
 const ZOOM_MIN = 75;
 const ZOOM_MAX = 250;
 const ZOOM_STEP = 25;
+
+const isMobile = ref(typeof window !== "undefined" && window.innerWidth < 640);
+
+function updateMobileFlag() {
+  isMobile.value = window.innerWidth < 640;
+}
+
+onMounted(() => {
+  updateMobileFlag();
+  window.addEventListener("resize", updateMobileFlag);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateMobileFlag);
+});
+
+const baseWidth = computed(() => (isMobile.value ? 288 : 340));
+const baseHeight = computed(() => (isMobile.value ? 384 : 460));
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -197,19 +300,21 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 const zoom = ref(100);
-const showOrderForm = ref(false);
 const orderPanel = ref(null);
 const previewScroller = ref(null);
-const isDraggingPreview = ref(false);
-const dragPoint = {
-  x: 0,
-  y: 0,
-};
+
+// Personalization State
+const activeTab = ref("personalize");
+const customTitle = ref("");
+const customMessage = ref("");
+const selectedFont = ref("");
+
 let previousBodyOverflow = "";
 
 const canZoomOut = computed(() => zoom.value > ZOOM_MIN);
 const canZoomIn = computed(() => zoom.value < ZOOM_MAX);
 const canDragPreview = computed(() => zoom.value > 100);
+
 const dialogTitle = computed(() => {
   if (props.title) return props.title;
   return [props.model?.name, props.variant?.name].filter(Boolean).join(" - ");
@@ -224,22 +329,70 @@ const orderSummary = computed(() => {
 const orderModelSlug = computed(() => props.orderModelSlug || props.model?.slug || "");
 const orderModelName = computed(() => props.orderModelName || props.model?.name || "");
 const orderDesignVariant = computed(() => props.orderDesignVariant ?? props.variant?.name ?? "");
-const previewDragClass = computed(() => {
-  if (!canDragPreview.value) return "";
-  return isDraggingPreview.value
-    ? "cursor-grabbing select-none touch-none"
-    : "cursor-grab touch-none";
+
+const zoomFrameStyle = computed(() => {
+  const scale = zoom.value / 100;
+  return {
+    width: `${baseWidth.value * scale}px`,
+    height: `${baseHeight.value * scale}px`,
+  };
 });
-const zoomFrameStyle = computed(() => ({
-  width: `${zoom.value}%`,
-  minWidth: "100%",
-  height: `${zoom.value}%`,
-  minHeight: "100%",
-}));
+
+const zoomTransformStyle = computed(() => {
+  const scale = zoom.value / 100;
+  return {
+    width: `${baseWidth.value}px`,
+    height: `${baseHeight.value}px`,
+    transform: `scale(${scale})`,
+    transformOrigin: "center center",
+  };
+});
+
+const fontOptions = [
+  { class: "", name: "Default Serif", preview: "Cormorant Garamond" },
+  { class: "font-cursive-hand", name: "Calligraphy Hand", preview: "Sacramento Script" },
+  { class: "font-cursive-lux", name: "Luxury Cursive", preview: "Great Vibes Calligraphy" },
+  { class: "font-serif-disp", name: "Editorial Display", preview: "Cinzel Classic" },
+];
+
+const defaultMessages = {
+  "greeting-cards":
+    "Wishing you a beautiful day filled with joy, laughter, and unforgettable moments.",
+  "wedding-cards":
+    "Together with their families, invite you to celebrate their marriage. Honor us with your presence.",
+  "business-cards": "Bespoke Card Studio \u2022 Custom Letterpress \u2022 Hand-Mixed Ink",
+  "valentine-special": "You have my whole heart for my whole life. Happy Valentine's Day, my love.",
+};
+
+const defaultCardMessage = computed(() => {
+  const slug = props.collection?.slug || "";
+  return (
+    defaultMessages[slug] ||
+    "Wishing you a wonderful celebration filled with love, laughter, and beautiful memories."
+  );
+});
+
+const generatedInstructions = computed(() => {
+  const fontName = fontOptions.find((f) => f.class === selectedFont.value)?.name || "Default Serif";
+
+  return `Personalisation Specifications:
+- Card Title/Name: "${customTitle.value}"
+- Card Text/Message: "${customMessage.value}"
+- Selected Font Style: ${fontName}`;
+});
 
 function resetDialogState() {
   zoom.value = 100;
-  showOrderForm.value = false;
+  activeTab.value = "personalize";
+  customTitle.value = props.model?.name || props.title || "";
+
+  const slug = props.collection?.slug || "";
+  customMessage.value =
+    defaultMessages[slug] ||
+    "Wishing you a wonderful celebration filled with love, laughter, and beautiful memories.";
+
+  selectedFont.value = "";
+
   endPreviewDrag();
   nextTick(() => {
     if (!previewScroller.value) return;
@@ -258,7 +411,7 @@ function zoomIn() {
 }
 
 async function openOrderForm() {
-  showOrderForm.value = true;
+  activeTab.value = "order";
   await nextTick();
   orderPanel.value?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
@@ -271,34 +424,10 @@ function handleSubmitted() {
   close();
 }
 
-function startPreviewDrag(event) {
-  if (!canDragPreview.value) return;
-  if (event.pointerType === "mouse" && event.button !== 0) return;
-
-  isDraggingPreview.value = true;
-  dragPoint.x = event.clientX;
-  dragPoint.y = event.clientY;
-  event.currentTarget.setPointerCapture?.(event.pointerId);
-  event.preventDefault();
-}
-
-function dragPreview(event) {
-  if (!isDraggingPreview.value || !previewScroller.value) return;
-
-  const deltaX = event.clientX - dragPoint.x;
-  const deltaY = event.clientY - dragPoint.y;
-  previewScroller.value.scrollLeft -= deltaX;
-  previewScroller.value.scrollTop -= deltaY;
-  dragPoint.x = event.clientX;
-  dragPoint.y = event.clientY;
-  event.preventDefault();
-}
-
 function endPreviewDrag(event) {
   if (event?.currentTarget) {
     event.currentTarget.releasePointerCapture?.(event.pointerId);
   }
-  isDraggingPreview.value = false;
 }
 
 function handleKeydown(event) {
