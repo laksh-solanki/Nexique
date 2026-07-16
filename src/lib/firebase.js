@@ -7,6 +7,15 @@ import {
   updateProfile as fbUpdateProfile,
 } from "firebase/auth";
 
+const hasFirebaseConfig = Boolean(
+  import.meta.env.VITE_FIREBASE_API_KEY &&
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN &&
+    import.meta.env.VITE_FIREBASE_PROJECT_ID &&
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET &&
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID &&
+    import.meta.env.VITE_FIREBASE_APP_ID,
+);
+const isMock = import.meta.env.DEV && !hasFirebaseConfig;
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "mock-api-key",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "mock-auth-domain",
@@ -17,71 +26,77 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "mock-app-id",
 };
 
-const isMock =
-  !import.meta.env.VITE_FIREBASE_API_KEY ||
-  import.meta.env.VITE_FIREBASE_API_KEY === "mock-api-key";
-
 let app, auth;
-const mockAuth = createMockAuth();
+const mockAuth = isMock ? createMockAuth() : null;
 
-if (!isMock) {
+if (!isMock && hasFirebaseConfig) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
   } catch (err) {
-    console.warn("Firebase initialization failed, falling back to mock authentication:", err);
+    console.error("Firebase initialization failed:", err);
   }
+} else if (!isMock) {
+  console.error("Firebase authentication is not configured for this build.");
 }
 
 export { auth, isMock };
 
 export async function signIn(email, password) {
-  if (isMock || !auth) {
+  if (isMock) {
     return mockAuth.signInWithEmailAndPassword(email, password);
   }
+  if (!auth) throw new Error("Firebase authentication is not configured.");
   return fbSignIn(auth, email, password);
 }
 
 export async function signUp(email, password, name) {
-  if (isMock || !auth) {
+  if (isMock) {
     const cred = await mockAuth.createUserWithEmailAndPassword(email, password);
     await mockAuth.updateProfile(cred.user, { displayName: name });
     return cred;
   }
+  if (!auth) throw new Error("Firebase authentication is not configured.");
   const cred = await fbSignUp(auth, email, password);
   await fbUpdateProfile(cred.user, { displayName: name });
   return cred;
 }
 
 export async function logOut() {
-  if (isMock || !auth) {
+  if (isMock) {
     return mockAuth.signOut();
   }
+  if (!auth) return;
   return fbSignOut(auth);
 }
 
 export function onAuthState(cb) {
-  if (isMock || !auth) {
+  if (isMock) {
     return mockAuth.onAuthStateChanged(cb);
+  }
+  if (!auth) {
+    setTimeout(() => cb(null), 0);
+    return () => {};
   }
   return auth.onAuthStateChanged(cb);
 }
 
 export async function getFirebaseToken() {
-  if (isMock || !auth) {
+  if (isMock) {
     const user = mockAuth.currentUser;
     return user ? `mock-token-${user.email}` : "";
   }
+  if (!auth) return "";
   const user = auth.currentUser;
   return user ? user.getIdToken() : "";
 }
 
 export function getCurrentFirebaseUser() {
-  return isMock || !auth ? mockAuth.currentUser : auth.currentUser;
+  return isMock ? mockAuth.currentUser : auth?.currentUser || null;
 }
 
 export async function updateFirebaseProfile(displayName) {
-  if (isMock || !auth) {
+  if (isMock) {
     await mockAuth.updateProfile(mockAuth.currentUser, { displayName });
     return;
   }

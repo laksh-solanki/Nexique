@@ -1,8 +1,19 @@
+import { createVerify } from "node:crypto";
+
+import { firebaseProjectId } from "./env.js";
+
+const FIREBASE_CERTS_URL =
+  "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
+const TOKEN_CLOCK_SKEW_SECONDS = 60;
+
+let certificateCache = null;
+let certificateCacheExpiresAt = 0;
+
 /**
- * Resolves a customer profile from the request Authorization header.
- * Decodes Firebase ID tokens or processes development mock tokens.
+ * Resolves a verified Firebase customer from the request Authorization header.
+ * Development mock tokens remain available only outside production.
  * @param {object} req
- * @returns {object|null}
+ * @returns {Promise<object|null>}
  */
 export async function getCustomerFromRequest(req) {
   const authHeader = req.headers.authorization;
@@ -13,46 +24,104 @@ export async function getCustomerFromRequest(req) {
   const token = authHeader.substring(7).trim();
   if (!token) return null;
 
-  // Development simulated token fallback
-  if (token.startsWith("mock-uid-") || token.startsWith("mock-token-")) {
-    const rawVal = token.replace("mock-token-", "").replace("mock-uid-", "");
-    // Extract email from mock-token
-    const email = rawVal.includes("@") ? rawVal : `${rawVal}@example.com`;
-    return {
-      email: email.toLowerCase(),
-      uid: "mock-uid-" + email.replace(/[^a-z0-9]/g, ""),
-      name: email.split("@")[0].toUpperCase(),
-    };
+  if (isDevelopmentEnvironment() && (token.startsWith("mock-uid-") || token.startsWith("mock-token-"))) {
+    return mockCustomerFromToken(token);
   }
 
-  // Firebase ID Token (JWT RS256) decoding
   try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    // Parse the payload segment (2nd segment)
-    const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const payloadJson = Buffer.from(payloadBase64, "base64").toString("utf8");
-    const payload = JSON.parse(payloadJson);
-
-    // Verify token expiration (exp is in seconds since epoch)
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-      console.warn("Expired Firebase token submitted");
-      return null;
-    }
+    const customer = await verifyFirebaseIdToken(token);
+    if (!customer) return null;
 
     return {
-      email: String(payload.email || "").toLowerCase(),
-      uid: payload.sub, // Firebase Auth user UID is stored in JWT sub claim
+      email: String(customer.email || "").toLowerCase(),
+      uid: customer.uid,
       name:
-        payload.name ||
-        String(payload.email || "")
+        customer.name ||
+        String(customer.email || "")
           .split("@")[0]
           .toUpperCase(),
     };
   } catch (err) {
-    console.error("Failed to parse Firebase ID token:", err);
+    console.error("Failed to verify Firebase token:", err);
     return null;
   }
+}
+
+async function verifyFirebaseIdToken(token) {
+  const projectId = firebaseProjectId();
+  if (!projectId) return null;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  const header = decodeJsonSegment(parts[0]);
+  const payload = decodeJsonSegment(parts[1]);
+  if (!header || !payload || header.alg !== "RS256" || !header.kid) return null;
+
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    payload.aud !== projectId ||
+    payload.iss !== `https://securetoken.google.com/${projectId}` ||
+    typeof payload.sub !== "string" ||
+    !payload.sub ||
+    typeof payload.exp !== "number" ||
+    payload.exp <= now - TOKEN_CLOCK_SKEW_SECONDS ||
+    (typeof payload.iat === "number" && payload.iat > now + TOKEN_CLOCK_SKEW_SECONDS)
+  ) {
+    return null;
+  }
+
+  const certificates = await getFirebaseCertificates();
+  const certificate = certificates[header.kid];
+  if (!certificate) return null;
+
+  const verifier = createVerify("RSA-SHA256");
+  verifier.update(`${parts[0]}.${parts[1]}`);
+  verifier.end();
+  if (!verifier.verify(certificate, Buffer.from(parts[2], "base64url"))) return null;
+
+  return {
+    email: payload.email || "",
+    uid: payload.sub,
+    name: payload.name || "",
+  };
+}
+
+async function getFirebaseCertificates() {
+  const now = Date.now();
+  if (certificateCache && certificateCacheExpiresAt > now) return certificateCache;
+
+  const response = await fetch(FIREBASE_CERTS_URL);
+  if (!response.ok) {
+    throw new Error(`Firebase certificate request failed with ${response.status}.`);
+  }
+
+  const certificates = await response.json();
+  const cacheControl = response.headers.get("cache-control") || "";
+  const maxAge = Number(cacheControl.match(/max-age=(\d+)/i)?.[1] || 300);
+  certificateCache = certificates;
+  certificateCacheExpiresAt = now + Math.max(60, maxAge) * 1000;
+  return certificates;
+}
+
+function decodeJsonSegment(segment) {
+  try {
+    return JSON.parse(Buffer.from(segment, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function mockCustomerFromToken(token) {
+  const rawVal = token.replace("mock-token-", "").replace("mock-uid-", "");
+  const email = rawVal.includes("@") ? rawVal : `${rawVal}@example.com`;
+  return {
+    email: email.toLowerCase(),
+    uid: "mock-uid-" + email.replace(/[^a-z0-9]/g, ""),
+    name: email.split("@")[0].toUpperCase(),
+  };
+}
+
+function isDevelopmentEnvironment() {
+  return process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1";
 }

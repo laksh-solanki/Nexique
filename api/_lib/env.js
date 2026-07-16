@@ -6,6 +6,10 @@ export function mongoDbName() {
   return process.env.MONGODB_DB_NAME || "";
 }
 
+export function firebaseProjectId() {
+  return process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || "";
+}
+
 export function sessionSecret() {
   if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
   if (process.env.NODE_ENV !== "production") return "nexique-local-dev-session-secret";

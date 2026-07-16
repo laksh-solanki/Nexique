@@ -2,6 +2,7 @@ import {
   assertSameOrigin,
   handleApiError,
   methodNotAllowed,
+  notFound,
   readJson,
   sendJson,
   unauthorized,
@@ -34,6 +35,7 @@ export default async function handler(req, res) {
 
     if (req.method === "DELETE") {
       const current = await db.collection("orders").findOne({ _id });
+      if (!current) return notFound(res, "Order not found.");
       await db.collection("orders").deleteOne({ _id });
       await logAdminAction(admin.email, "delete_order", {
         id: routeId(req),
@@ -50,6 +52,7 @@ export default async function handler(req, res) {
     }
 
     const current = await db.collection("orders").findOne({ _id });
+    if (!current) return notFound(res, "Order not found.");
     await db.collection("orders").updateOne({ _id }, { $set: patch });
     const order = await db.collection("orders").findOne({ _id });
 

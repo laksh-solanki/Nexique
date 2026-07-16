@@ -3,6 +3,7 @@ import {
   assertSameOrigin,
   handleApiError,
   methodNotAllowed,
+  notFound,
   readJson,
   sendJson,
   unauthorized,
@@ -52,6 +53,7 @@ export default async function handler(req, res) {
 
     if (req.method === "DELETE") {
       const current = await db.collection("custom_card_models").findOne({ _id });
+      if (!current) return notFound(res, "Custom card not found.");
       await db.collection("custom_card_models").deleteOne({ _id });
       await logAdminAction(admin.email, "delete_custom_model", {
         id: routeId(req),

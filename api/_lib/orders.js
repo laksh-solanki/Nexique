@@ -12,6 +12,22 @@ function nullableText(value, maxLength) {
   return clean || null;
 }
 
+function cleanPublicDeadline(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return { value: null };
+
+  const match = raw.match(/^(\d{4}-\d{2}-\d{2})(?:T|$)/);
+  if (!match) return { error: "Deadline must be a valid date." };
+
+  const dateOnly = match[1];
+  const parsed = new Date(`${dateOnly}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== dateOnly) {
+    return { error: "Deadline must be a valid date." };
+  }
+
+  return { value: dateOnly };
+}
+
 export function orderResponse(order) {
   return {
     id: String(order._id || order.id),
@@ -42,6 +58,7 @@ export function validatePublicOrder(payload) {
   const collectionName = text(payload.collection_name, 120);
   const modelSlug = text(payload.model_slug, 120);
   const modelName = text(payload.model_name, 120);
+  const deadline = cleanPublicDeadline(payload.deadline);
 
   if (!customerName) return { error: "Name required." };
   if (!EMAIL_RE.test(customerEmail)) return { error: "Valid email required." };
@@ -51,6 +68,7 @@ export function validatePublicOrder(payload) {
   if (!collectionSlug || !collectionName || !modelSlug || !modelName) {
     return { error: "Card details are required." };
   }
+  if (deadline.error) return deadline;
 
   const now = new Date();
   return {
@@ -67,7 +85,7 @@ export function validatePublicOrder(payload) {
       design_variant: nullableText(payload.design_variant, 80),
       status: "new",
       priority: "normal",
-      deadline: null,
+      deadline: deadline.value,
       admin_note: "",
       created_at: now,
       updated_at: now,
